@@ -1,0 +1,17 @@
+.git
+.venv
+.env
+.env.*
+!.env.example
+var/
+bin/
+staticfiles/
+static/css/app.css
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+tests/
+docs/
