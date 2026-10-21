@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{# Authenticated shell. Phase 1 adds the mobile bottom nav and desktop sidebar. #}
+{% block body %}
+  <div class="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-6">
+    <header class="mb-6 text-lg font-semibold">{{ SITE_NAME }}</header>
+    {% if messages %}
+      <ul class="mb-4 space-y-2" role="status">
+        {% for message in messages %}
+          <li class="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <main class="flex-1">{% block content %}{% endblock %}</main>
+  </div>
+{% endblock %}

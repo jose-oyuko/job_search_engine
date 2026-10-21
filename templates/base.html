@@ -1,0 +1,15 @@
+{% load static %}<!doctype html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <script src="{% static 'js/alpine.min.js' %}" defer></script>
+  {% block head %}{% endblock %}
+</head>
+<body class="min-h-full font-sans text-slate-900 antialiased" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  {% block body %}{% endblock %}
+</body>
+</html>
