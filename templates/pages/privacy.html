@@ -1,0 +1,50 @@
+{% extends "public_base.html" %}
+{% block title %}Privacy policy — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <article class="mx-auto max-w-3xl px-4 py-12 prose-legal">
+    <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Privacy policy</h1>
+    <p class="text-sm text-slate-500">Version {{ PRIVACY_VERSION }}. This policy is operated by {{ COMPANY_NAME }} ("we", "us").</p>
+
+    <p>{{ SITE_NAME }} helps you find jobs and prepare applications. This page explains what we store, who processes it, how long we keep it and how to get it deleted. We handle personal data in line with the Kenya Data Protection Act, 2019.</p>
+
+    <h2>What we store</h2>
+    <ul>
+      <li><strong>Account data:</strong> your name, email address and sign-in details (a password hash, or your Google account link).</li>
+      <li><strong>Profile and CV:</strong> the CV you upload and the profile built from it: work history, education, skills and contact details you choose to add.</li>
+      <li><strong>Job preferences and matches:</strong> your target roles, location, pay and notification settings, and the jobs we match to you.</li>
+      <li><strong>Generated documents:</strong> tailored CVs, cover letters and interview preparation we create for you.</li>
+      <li><strong>Applications:</strong> the stages and notes you record in the tracker.</li>
+      <li><strong>Forwarded job-alert emails:</strong> if you forward job alerts to your personal address, we store those messages to extract the jobs in them.</li>
+      <li><strong>Usage records:</strong> the number and cost of AI requests made for you, and consent records (what you agreed to, and when).</li>
+    </ul>
+
+    <h2>Who processes your data</h2>
+    <ul>
+      <li><strong>AI providers.</strong> To score jobs and write your documents, we send relevant parts of your profile and the job text to a third-party large-language-model provider. Their servers may be outside Kenya.</li>
+      <li><strong>Hosting provider.</strong> Our servers are run by a cloud hosting provider outside Kenya.</li>
+      <li><strong>Email delivery.</strong> A transactional email service delivers our messages to you.</li>
+      <li><strong>Sign-in.</strong> If you choose Google sign-in, Google tells us your name and verified email address.</li>
+    </ul>
+    <p>We do not sell your data and we do not show advertising.</p>
+
+    <h2>How long we keep it</h2>
+    <ul>
+      <li>Account, profile, documents and applications: until you delete your account.</li>
+      <li>Raw forwarded email bodies: 30 days, after which only the extracted job details remain.</li>
+      <li>AI usage records: 12 months.</li>
+      <li>Server logs: a few days. They contain record numbers, not your documents or email contents.</li>
+    </ul>
+
+    <h2>Your rights</h2>
+    <p>You can see, correct, export or delete your data at any time. A self-service data export and account deletion are available under Settings → Privacy once your account is active. You may also ask us to do it by writing to <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>. You can withdraw consent by deleting your account, and you may complain to the Office of the Data Protection Commissioner of Kenya.</p>
+
+    <h2>Security</h2>
+    <p>Connections are encrypted, passwords are stored hashed, uploaded files are kept in private storage that only you can reach, and staff access is limited to the operator.</p>
+
+    <h2>Changes</h2>
+    <p>If we change this policy in a material way, we will update the version number above and ask you to review it.</p>
+
+    <h2>Contact</h2>
+    <p>{{ COMPANY_NAME }} &middot; <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a></p>
+  </article>
+{% endblock %}

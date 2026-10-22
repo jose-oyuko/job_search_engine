@@ -1,0 +1,42 @@
+{% extends "public_base.html" %}
+{% block title %}Terms of use — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <article class="mx-auto max-w-3xl px-4 py-12 prose-legal">
+    <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Terms of use</h1>
+    <p class="text-sm text-slate-500">Version {{ TERMS_VERSION }}. These terms are between you and {{ COMPANY_NAME }} ("we", "us").</p>
+
+    <h2>1. The service</h2>
+    <p>{{ SITE_NAME }} finds job listings, scores them against your profile, helps you prepare application documents and tracks your applications. It is currently available by invitation only.</p>
+
+    <h2>2. Your account</h2>
+    <p>Keep your sign-in details private and give us accurate information. You are responsible for activity under your account. Invitations are personal and may not be sold or shared.</p>
+
+    <h2>3. Your content and the documents we generate</h2>
+    <p>You own the CV and profile you provide. We use them only to run the service for you. Generated CVs and cover letters are drafts built from the facts in your profile. <strong>You must read them and confirm they are accurate before you send them to anyone.</strong> You are responsible for what you submit to employers.</p>
+
+    <h2>4. Job listings</h2>
+    <p>Listings come from third parties. We cannot guarantee that a job is real, still open or suitable, or that an employer will respond. Be careful with any listing that asks you for money or sensitive documents up front.</p>
+
+    <h2>5. Acceptable use</h2>
+    <ul>
+      <li>No unlawful use, and no attempt to disrupt or probe the service.</li>
+      <li>No automated scraping of the service or bypassing of its usage limits.</li>
+      <li>No uploading of content you have no right to share.</li>
+    </ul>
+
+    <h2>6. Usage limits</h2>
+    <p>AI features have monthly limits per account. We may change limits, or suspend accounts that abuse the service.</p>
+
+    <h2>7. No guarantee of results</h2>
+    <p>The service is provided "as is". We do not promise that you will get interviews or a job. To the extent the law allows, we are not liable for indirect or consequential loss.</p>
+
+    <h2>8. Ending your account</h2>
+    <p>You can delete your account at any time. We may end access for breach of these terms. See the <a href="{% url 'pages:privacy' %}">Privacy policy</a> for what happens to your data.</p>
+
+    <h2>9. Changes and governing law</h2>
+    <p>We may update these terms and will change the version above when we do. These terms are governed by the laws of Kenya. [Owner: confirm jurisdiction and add the registered business details.]</p>
+
+    <h2>10. Contact</h2>
+    <p>{{ COMPANY_NAME }} &middot; <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a></p>
+  </article>
+{% endblock %}

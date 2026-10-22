@@ -6,6 +6,49 @@
 
 @theme {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
   --color-brand-600: #4f46e5;
   --color-brand-700: #4338ca;
+}
+
+/* Small component layer so allauth's generic element templates and our pages share one look. */
+@layer components {
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm
+      font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600
+      focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700;
+  }
+  .btn-secondary {
+    @apply border border-slate-300 bg-white text-slate-800 hover:bg-slate-50;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700;
+  }
+  .input {
+    @apply block min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base
+      text-slate-900 placeholder:text-slate-400 focus:border-brand-600 focus:outline-none
+      focus:ring-2 focus:ring-brand-600/30 sm:text-sm;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-slate-700;
+  }
+  .card {
+    @apply rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6;
+  }
+  .prose-legal {
+    @apply space-y-4 text-slate-700 leading-relaxed;
+  }
+  .prose-legal h2 {
+    @apply mt-8 text-lg font-semibold text-slate-900;
+  }
+  .prose-legal ul {
+    @apply list-disc space-y-1 pl-5;
+  }
+  .prose-legal a {
+    @apply text-brand-700 underline;
+  }
 }

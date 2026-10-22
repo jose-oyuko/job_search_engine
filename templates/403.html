@@ -1,0 +1,10 @@
+{% extends "public_base.html" %}
+{% block title %}Not allowed — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <div class="mx-auto max-w-xl px-4 py-20 text-center">
+    <p class="text-sm font-semibold text-brand-700">403</p>
+    <h1 class="mt-2 text-2xl font-semibold tracking-tight">You do not have access to this page</h1>
+    <p class="mt-3 text-slate-600">If you think this is a mistake, sign in with the right account or contact us.</p>
+    <a href="{% url 'pages:landing' %}" class="btn btn-primary mt-8">Go to the home page</a>
+  </div>
+{% endblock %}

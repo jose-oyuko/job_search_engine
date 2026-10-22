@@ -1,0 +1,4 @@
+<form method="post" action="{{ attrs.href }}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-secondary w-full">Continue with {{ attrs.name }}</button>
+</form>

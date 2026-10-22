@@ -1,0 +1,9 @@
+{% extends "app_base.html" %}
+{% block title %}Jobs — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <h1 class="text-2xl font-semibold tracking-tight">Welcome{% if user.full_name %}, {{ user.full_name }}{% endif %}</h1>
+  <div class="card mt-6 text-center">
+    <p class="font-medium">No matches yet.</p>
+    <p class="mt-1 text-sm text-slate-600">Your personalised job feed will appear here. We check for new jobs every 20 minutes once your profile is set up.</p>
+  </div>
+{% endblock %}

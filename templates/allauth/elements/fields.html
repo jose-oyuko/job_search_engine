@@ -1,0 +1,26 @@
+{% load ui %}
+{% if attrs.form.non_field_errors %}
+  <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+    {% for e in attrs.form.non_field_errors %}<p>{{ e }}</p>{% endfor %}
+  </div>
+{% endif %}
+{% for field in attrs.form %}
+  {% if field.is_hidden %}
+    {{ field }}
+  {% elif field|is_checkbox %}
+    <div>
+      <div class="flex items-start gap-3">
+        {{ field|styled }}
+        <label for="{{ field.id_for_label }}" class="text-sm text-slate-700">{{ field.label }}</label>
+      </div>
+      {% for e in field.errors %}<p class="mt-1 text-sm text-red-700">{{ e }}</p>{% endfor %}
+    </div>
+  {% else %}
+    <div>
+      <label for="{{ field.id_for_label }}" class="label">{{ field.label }}{% if not field.field.required %} <span class="font-normal text-slate-500">(optional)</span>{% endif %}</label>
+      {{ field|styled }}
+      {% if field.help_text %}<p class="mt-1 text-xs text-slate-500">{{ field.help_text|safe }}</p>{% endif %}
+      {% for e in field.errors %}<p class="mt-1 text-sm text-red-700">{{ e }}</p>{% endfor %}
+    </div>
+  {% endif %}
+{% endfor %}

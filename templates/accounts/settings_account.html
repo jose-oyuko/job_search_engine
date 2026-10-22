@@ -1,0 +1,31 @@
+{% extends "app_base.html" %}
+{% block title %}Account — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <h1 class="text-2xl font-semibold tracking-tight">Settings</h1>
+  <p class="mt-1 text-sm text-slate-600">More settings (notifications, usage, privacy) arrive in later releases.</p>
+
+  <section class="card mt-6" aria-labelledby="account-heading">
+    <h2 id="account-heading" class="text-lg font-semibold">Account</h2>
+    <dl class="mt-4 divide-y divide-slate-100 text-sm">
+      <div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div><dt class="text-slate-500">Email</dt><dd class="font-medium">{{ user.email }}</dd></div>
+        <a href="{% url 'account_email' %}" class="btn btn-secondary">Manage email</a>
+      </div>
+      <div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div><dt class="text-slate-500">Password</dt><dd class="font-medium">••••••••</dd></div>
+        <a href="{% url 'account_change_password' %}" class="btn btn-secondary">Change password</a>
+      </div>
+      {% if GOOGLE_ENABLED %}
+        <div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div><dt class="text-slate-500">Google sign-in</dt><dd class="font-medium">Connected accounts</dd></div>
+          <a href="{% url 'socialaccount_connections' %}" class="btn btn-secondary">Manage</a>
+        </div>
+      {% endif %}
+    </dl>
+  </section>
+
+  <form method="post" action="{% url 'account_logout' %}" class="mt-6">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-secondary">Sign out</button>
+  </form>
+{% endblock %}

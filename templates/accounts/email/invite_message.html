@@ -1,0 +1,7 @@
+{% extends "email/base.html" %}
+{% block body %}
+  <h1 style="font-size:20px;margin:0 0 12px 0;">You are invited</h1>
+  <p>You have been invited to join {{ site_name }}, which finds jobs that fit you and prepares tailored applications.</p>
+  {% include "email/_button.html" with url=invite_url label="Accept your invite" %}
+  <p style="font-size:13px;color:#64748b;">This invite can be used once and expires on {{ expires_at|date:"j F Y" }}.</p>
+{% endblock %}

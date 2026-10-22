@@ -1,0 +1,25 @@
+{% extends "public_base.html" %}
+{% load socialaccount %}
+{% block title %}You are invited — {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <div class="mx-auto max-w-md px-4 py-12">
+    <div class="card">
+      <h1 class="text-2xl font-semibold tracking-tight">You are invited</h1>
+      <p class="mt-2 text-slate-600">Create your {{ SITE_NAME }} account to get started.</p>
+      {% if locked_email %}
+        <p class="mt-3 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">This invite is for <strong>{{ locked_email }}</strong>. Use that address to sign up.</p>
+      {% endif %}
+      <div class="mt-6 space-y-3">
+        {% if GOOGLE_ENABLED %}
+          <form method="post" action="{% provider_login_url 'google' process='login' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary w-full">Continue with Google</button>
+          </form>
+          <p class="text-center text-xs uppercase tracking-wide text-slate-400">or</p>
+        {% endif %}
+        <a href="{% url 'account_signup' %}" class="btn btn-primary w-full">Sign up with email</a>
+      </div>
+      <p class="mt-6 text-center text-sm text-slate-500">Already have an account? <a href="{% url 'account_login' %}" class="font-medium text-brand-700 underline">Sign in</a></p>
+    </div>
+  </div>
+{% endblock %}
