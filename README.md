@@ -35,6 +35,17 @@ port in `DATABASE_URL`.
 Set `HEARTBEAT_INTERVAL_MINUTES=1` in `.env` to watch the worker heartbeat in the logs quickly.
 Use `LOG_FORMAT=json` to see the structured production log format locally.
 
+## Accounts and invites
+
+Signup is invite-only. Create invites in the admin (`/admin/` → Invites → "Generate invites", or
+approve a waitlist entry, which emails an email-locked invite). Verification and invite emails show
+up in Mailpit at http://localhost:8025.
+
+Google sign-in: create an OAuth client at https://console.cloud.google.com/apis/credentials, add
+`http://localhost:8000/accounts/google/login/callback/` as an authorised redirect URI, and put the
+client ID and secret in `.env` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`). Without them the
+button is hidden.
+
 ## Checks (all must pass before a phase is done)
 
 ```bash
