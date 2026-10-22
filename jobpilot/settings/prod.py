@@ -29,3 +29,13 @@ CSRF_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=3600)  # raise once stable
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
+
+# --- Rate limiting behind Caddy (§20) ---
+# One shared counter store: a per-process cache would multiply every limit by the worker count.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache",
+    }
+}
+RATELIMIT_IP_META_KEY = "apps.core.ratelimit.client_ip"

@@ -2,8 +2,7 @@ import logging
 from typing import Any
 
 from django.contrib.auth import get_user_model
-from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
 from apps.core.logging import log_event
@@ -42,8 +41,3 @@ def _deep_check() -> JsonResponse:
         return JsonResponse({"status": "error", "detail": "huey"}, status=503)
     # TODO(phase 12): also verify the heartbeat is recent.
     return JsonResponse({"status": "ok", **checks})
-
-
-def home(request: HttpRequest) -> HttpResponse:
-    """Placeholder landing page; replaced by apps.pages in Phase 1."""
-    return render(request, "home.html")

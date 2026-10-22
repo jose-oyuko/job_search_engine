@@ -20,7 +20,7 @@ class CoreConfig(AppConfig):
         """Optional features disable themselves cleanly; say so once at startup (§21.2)."""
         optional = {
             "telegram": settings.TELEGRAM_BOT_TOKEN,
-            "google_signin": settings.GOOGLE_CLIENT_ID,
+            "google_signin": settings.GOOGLE_ENABLED,
             "inbound_email": settings.INBOUND_IMAP_USER,
             "sentry": settings.SENTRY_DSN,
         }

@@ -9,6 +9,8 @@ if [ "${RUN_COLLECTSTATIC:-0}" = "1" ]; then
 fi
 if [ "${RUN_MIGRATIONS:-0}" = "1" ]; then
   python manage.py migrate --noinput
+  # Backing table for the shared rate-limit counters (no-op if it already exists).
+  python manage.py createcachetable
 fi
 
 exec "$@"
