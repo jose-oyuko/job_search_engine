@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.llm",
     "apps.profiles",
+    "apps.sources",
+    "apps.jobs",
     "apps.pages",
 ]
 
@@ -156,6 +158,13 @@ STORAGES = {
 }
 
 CV_MAX_UPLOAD_BYTES = env.int("CV_MAX_UPLOAD_BYTES", default=5 * 1024 * 1024)
+
+# --- Scraping etiquette (§6.3) and job lifecycle (§7.5) ---
+SCRAPER_USER_AGENT = env.str(
+    "SCRAPER_USER_AGENT", default="Mozilla/5.0 (compatible; JobPilot/1.0; +https://example.com/bot)"
+)
+SCRAPER_DELAY_SECONDS = env.float("SCRAPER_DELAY_SECONDS", default=1.5)  # between requests per host
+JOB_EXPIRY_DAYS = env.int("JOB_EXPIRY_DAYS", default=7)  # days unseen before a scraped job expires
 
 # --- Private files (never under MEDIA_URL; served only through ownership-checked views) ---
 PRIVATE_MEDIA_ROOT = Path(env.str("PRIVATE_MEDIA_ROOT", default=str(BASE_DIR / "var" / "private")))

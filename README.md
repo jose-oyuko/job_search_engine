@@ -65,6 +65,18 @@ worker: run `uv run python manage.py run_huey` in a second terminal, otherwise t
 "Reading your CV". With `LLM_PROVIDER=fake` the parsed result comes from
 `tests/fixtures/llm/parse_cv.json`, so any readable CV shows the same sample data in development.
 
+## Job sources
+
+```bash
+uv run python manage.py seed_sources                         # creates the ExpertWoka source
+uv run python manage.py test_source expertwoka --dry-run --limit 5   # live check, saves nothing
+uv run python manage.py run_huey                             # fetches on schedule (every 20 min)
+```
+
+Sources, runs and jobs are in the admin; source health and recent runs are at `/app/staff/status/`
+(staff only). See `docs/SOURCES.md` to add a site. Set `SCRAPER_USER_AGENT` to include a real contact
+URL before running against live sites.
+
 ## Checks (all must pass before a phase is done)
 
 ```bash

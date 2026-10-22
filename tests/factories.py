@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from apps.accounts.models import Invite, WaitlistEntry
+from apps.jobs.models import Job
 from apps.profiles.models import (
     Certification,
     Education,
@@ -16,6 +17,7 @@ from apps.profiles.models import (
     Skill,
     Track,
 )
+from apps.sources.models import Source
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -108,3 +110,25 @@ class CertificationFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactory)
     name = factory.Sequence(lambda n: f"Cert {n}")
+
+
+class SourceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Source
+
+    name = factory.Sequence(lambda n: f"source-{n}")
+    display_name = factory.Sequence(lambda n: f"Source {n}")
+    kind = Source.Kind.JSON_API
+    config = factory.LazyFunction(dict)
+
+
+class JobFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Job
+
+    source = factory.SubFactory(SourceFactory)
+    external_id = factory.Sequence(lambda n: f"job-{n}")
+    title = factory.Sequence(lambda n: f"Job title {n}")
+    company = factory.Sequence(lambda n: f"Company {n}")
+    first_seen_at = factory.LazyFunction(timezone.now)
+    last_seen_at = factory.LazyFunction(timezone.now)

@@ -1,26 +1,1 @@
-"""nh3 wrappers for third-party HTML (spec §20). Never use `|safe` on untrusted content."""
-
-import nh3
-
-ALLOWED_TAGS = {
-    "p", "br", "ul", "ol", "li", "strong", "b", "em", "i", "u", "a",
-    "h1", "h2", "h3", "h4", "blockquote", "code", "pre",
-}  # fmt: skip
-ALLOWED_ATTRIBUTES = {"a": {"href"}}
-ALLOWED_URL_SCHEMES = {"http", "https", "mailto"}
-
-
-def clean_html(html: str) -> str:
-    """Keep a small set of formatting tags; drop scripts, styles, handlers and unsafe URLs."""
-    return nh3.clean(
-        html,
-        tags=ALLOWED_TAGS,
-        attributes=ALLOWED_ATTRIBUTES,
-        url_schemes=ALLOWED_URL_SCHEMES,
-        link_rel="noopener noreferrer nofollow",
-    )
-
-
-def strip_html(html: str) -> str:
-    """Remove all markup, returning plain text."""
-    return nh3.clean(html, tags=set())
+"""nh3 wrappers for third-party HTML (spec §20). Never use `|safe` on untrusted content."""import html as html_libimport reimport nh3ALLOWED_TAGS = {    "p", "br", "ul", "ol", "li", "strong", "b", "em", "i", "u", "a",    "h1", "h2", "h3", "h4", "blockquote", "code", "pre",}  # fmt: skipALLOWED_ATTRIBUTES = {"a": {"href"}}ALLOWED_URL_SCHEMES = {"http", "https", "mailto"}def clean_html(html: str) -> str:    """Keep a small set of formatting tags; drop scripts, styles, handlers and unsafe URLs."""    return nh3.clean(        html,        tags=ALLOWED_TAGS,        attributes=ALLOWED_ATTRIBUTES,        url_schemes=ALLOWED_URL_SCHEMES,        link_rel="noopener noreferrer nofollow",    )def strip_html(html: str) -> str:    """Remove all markup, returning plain text."""    return nh3.clean(html, tags=set())_BLOCK_BREAKS = re.compile(r"(?i)<\s*(?:br\s*/?|/p|/div|/li|/h[1-6]|/tr)\s*>")_LIST_ITEM = re.compile(r"(?i)<\s*li[^>]*>")_BLANK_RUNS = re.compile(r"\n\s*\n\s*\n+")_SPACES = re.compile(r"[ \t\u00a0]+")def html_to_text(html: str) -> str:    """Readable plain text from HTML: block ends become line breaks, list items get a dash,    entities are decoded and runs of blank lines collapse. Safe on untrusted input."""    marked = _LIST_ITEM.sub("\n- ", _BLOCK_BREAKS.sub("\n", html))    text = html_lib.unescape(strip_html(marked))    lines = [_SPACES.sub(" ", line).strip() for line in text.splitlines()]    return _BLANK_RUNS.sub("\n\n", "\n".join(lines)).strip()

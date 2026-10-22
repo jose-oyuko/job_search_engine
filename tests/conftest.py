@@ -3,6 +3,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+import respx
 from django.core.cache import cache
 
 from apps.llm.prompts import clear_prompt_cache
@@ -77,3 +78,11 @@ def prompts_dir(tmp_path: Path, settings) -> Path:  # type: ignore[no-untyped-de
     settings.LLM_PROMPTS_DIR = tmp_path
     clear_prompt_cache()
     return tmp_path
+
+
+@pytest.fixture
+def router() -> Iterator[respx.MockRouter]:
+    """HTTP mocking for source tests: any request that is not mocked fails the test, so a fetcher
+    can never reach a real site."""
+    with respx.mock(assert_all_called=False, assert_all_mocked=True) as mock:
+        yield mock

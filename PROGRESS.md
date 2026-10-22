@@ -4,7 +4,7 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 
 ## Current phase
 
-**Phase 3 — Profile, tracks and CV import** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 4, once the owner says to proceed.
+**Phase 4 — Source framework, ExpertWoka, ingestion** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 5, once the owner says to proceed.
 
 ## Phase status
 
@@ -13,8 +13,8 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 | 0 | Foundation and tooling | 🟨 Done, awaiting owner approval | 2026-10-21 |
 | 1 | Accounts, invites, public pages | ✅ Complete | 2026-10-22 |
 | 2 | LLM core layer and usage metering | ✅ Complete | 2026-10-22 |
-| 3 | Profile, tracks and CV import | 🟨 Done, awaiting owner approval | 2026-10-22 |
-| 4 | Source framework, ExpertWoka, ingestion | ⬜ Not started | |
+| 3 | Profile, tracks and CV import | ✅ Complete | 2026-10-22 |
+| 4 | Source framework, ExpertWoka, ingestion | 🟨 Done, awaiting owner approval | 2026-10-22 |
 | 5 | Manual job input | ⬜ Not started | |
 | 6 | Matching, scoring and the job feed | ⬜ Not started | |
 | 7 | Application kit generation and documents | ⬜ Not started | |
@@ -116,3 +116,25 @@ Legend: ⬜ Not started · 🟨 In progress · ✅ Complete (approved by owner)
   - Tests ignore E501 (pyproject per-file ignore); app code keeps the 100-column limit.
   - Reordering uses up/down buttons; SortableJS is not vendored yet (Phase 9 kanban).
 - Open questions: none.
+
+### Phase 4 — Source framework, ExpertWoka, ingestion — 2026-10-22
+- Summary: `apps.sources` (framework, generic fetchers, ExpertWoka plugin, runs, health, scheduler,
+  admin, status page, commands) and `apps.jobs` (Job pool, ingestion, pay/eligibility/scam/dedupe,
+  expiry, LLM extraction). Changes are uncommitted in the working tree on `main` (owner commits).
+- Notes for next session:
+  - First time on a database: `python manage.py seed_sources`, then run `run_huey`. Try a source with
+    `python manage.py test_source expertwoka --dry-run --limit 5` (this hits the real site).
+  - ExpertWoka reality differs from the spec: JSON-LD only on country-restricted jobs, so the plugin
+    parses HTML first (ADR 0012). Saved pages are in `tests/fixtures/html/expertwoka/`.
+  - `ingest_raw_jobs` returns `new_job_ids` (canonical jobs only); Phase 6 must hook
+    `matching.match_new_job` after extraction (see the TODO in `sources/services._enqueue_extraction`).
+  - `Job.objects.visible_to(user)`, `.canonical()` and `.active()` are the querysets to use; duplicates
+    (`duplicate_of` set) must never be matched or notified.
+  - `is_eligible(job, country)` returns True/False/None; None means "eligibility unclear", not "no".
+  - Failing sources only log now; the Telegram staff notification is a TODO for Phase 8.
+  - New fetchers: write a plugin in `apps/sources/custom/` or a generic kind; see `docs/SOURCES.md`.
+  - Tests use the `router` fixture (respx, any unmocked request fails) and `tests/source_helpers.py`.
+  - Writing files from a bash heredoc with backslashes corrupts them on this machine (a backslash-n
+    becomes a real newline); use the Write/Edit tools or build strings with `chr(92)`.
+- Open questions: ExpertWoka's terms bar republishing their materials without permission; ask them
+  before a public launch. Set a real contact URL in `SCRAPER_USER_AGENT`.

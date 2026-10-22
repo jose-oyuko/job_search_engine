@@ -1,0 +1,66 @@
+{% extends "app_base.html" %}
+{% block title %}System status &mdash; {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <h1 class="text-2xl font-semibold tracking-tight">System status</h1>
+  <p class="mt-1 text-sm text-slate-600">Visible to staff only.</p>
+
+  <section class="card mt-6" aria-labelledby="sources-heading">
+    <h2 id="sources-heading" class="text-lg font-semibold">Job sources</h2>
+    <div class="mt-3 overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-slate-200 text-slate-500">
+          <tr><th class="py-2 pr-4 font-medium">Source</th><th class="py-2 pr-4 font-medium">Health</th><th class="py-2 pr-4 font-medium">Last run</th><th class="py-2 pr-4 font-medium">New (24h)</th><th class="py-2 pr-4 font-medium">Active jobs</th><th class="py-2 font-medium">Failures</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for source in sources %}
+            <tr>
+              <td class="py-2 pr-4 font-medium">{{ source.display_name }}{% if not source.enabled %} <span class="text-xs text-slate-500">(disabled)</span>{% endif %}</td>
+              <td class="py-2 pr-4"><span class="rounded-full px-2 py-0.5 text-xs font-medium {% if source.health == 'ok' %}bg-green-50 text-green-700{% elif source.health == 'degraded' %}bg-amber-50 text-amber-800{% else %}bg-red-50 text-red-700{% endif %}">{{ source.get_health_display }}</span></td>
+              <td class="py-2 pr-4">{% if source.last_run_at %}{{ source.last_run_at|date:"j M H:i" }} UTC{% else %}Never{% endif %}</td>
+              <td class="py-2 pr-4">{{ source.jobs_24h }}</td>
+              <td class="py-2 pr-4">{{ source.jobs_total }}</td>
+              <td class="py-2">{{ source.consecutive_failures }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="py-4 text-slate-500">No sources yet. Run <code>python manage.py seed_sources</code>.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card mt-6" aria-labelledby="runs-heading">
+    <h2 id="runs-heading" class="text-lg font-semibold">Recent runs</h2>
+    <div class="mt-3 overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-slate-200 text-slate-500">
+          <tr><th class="py-2 pr-4 font-medium">When</th><th class="py-2 pr-4 font-medium">Source</th><th class="py-2 pr-4 font-medium">Trigger</th><th class="py-2 pr-4 font-medium">Result</th><th class="py-2 pr-4 font-medium">Seen</th><th class="py-2 pr-4 font-medium">New</th><th class="py-2 font-medium">Errors</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for run in runs %}
+            <tr>
+              <td class="py-2 pr-4">{{ run.started_at|date:"j M H:i" }}</td>
+              <td class="py-2 pr-4">{{ run.source.display_name }}</td>
+              <td class="py-2 pr-4">{{ run.get_trigger_display }}</td>
+              <td class="py-2 pr-4">{% if run.finished_at %}{% if run.success %}<span class="text-green-700">OK</span>{% else %}<span class="text-red-700">Failed</span>{% endif %}{% else %}Running&hellip;{% endif %}</td>
+              <td class="py-2 pr-4">{{ run.ids_seen }}</td>
+              <td class="py-2 pr-4">{{ run.new_jobs }}</td>
+              <td class="py-2">{{ run.errors|length }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="7" class="py-4 text-slate-500">No runs yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card mt-6" aria-labelledby="llm-heading">
+    <h2 id="llm-heading" class="text-lg font-semibold">LLM and extraction</h2>
+    <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-3">
+      <div><dt class="text-slate-500">Spend today (UTC)</dt><dd class="font-medium">${{ spend.today.cost|floatformat:4 }} &middot; {{ spend.today.calls }} calls</dd></div>
+      <div><dt class="text-slate-500">Spend this month</dt><dd class="font-medium">${{ spend.month.cost|floatformat:4 }} &middot; {{ spend.month.calls }} calls</dd></div>
+      <div><dt class="text-slate-500">Jobs awaiting extraction</dt><dd class="font-medium">{{ pending_extraction }}</dd></div>
+    </dl>
+  </section>
+{% endblock %}

@@ -1,0 +1,11 @@
+{
+  "is_job_posting": true,
+  "title": "Support Engineer",
+  "company": "Example Co",
+  "description": "Help customers solve technical problems over email and chat.",
+  "pay_text": "$20 per hour",
+  "locations": ["Kenya"],
+  "work_type": "remote",
+  "employment_type": "contract",
+  "apply_url": null
+}

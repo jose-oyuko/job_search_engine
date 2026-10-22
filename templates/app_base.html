@@ -20,6 +20,9 @@
         <a href="{{ settings_url }}" {% if '/app/settings/' in request.path %}aria-current="page"{% endif %}
            class="flex items-center rounded-lg px-3 py-2 font-medium {% if '/app/settings/' in request.path %}bg-brand-50 text-brand-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Settings</a>
       </nav>
+      {% if user.is_staff %}
+        <div class="px-3 pb-2 text-sm"><a href="{% url 'sources:status' %}" class="flex items-center rounded-lg px-3 py-2 text-slate-600 hover:bg-slate-100">System status</a></div>
+      {% endif %}
       <div class="border-t border-slate-200 p-4 text-sm">
         <p class="truncate text-slate-600">{{ user.full_name|default:user.email }}</p>
         <a href="{% url 'account_logout' %}" class="mt-1 inline-block text-slate-500 hover:text-slate-800">Sign out</a>

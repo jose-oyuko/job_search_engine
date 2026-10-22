@@ -68,6 +68,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Private, ownership-checked download of uploaded CVs.
   - New setting: `CV_MAX_UPLOAD_BYTES`. New dependencies: `pypdf`, `python-docx`, `tzdata`.
   - ADR 0011.
+- Phase 4 — Source framework, ExpertWoka, ingestion:
+  - `apps.sources`: `Source`, `SourceRun`, `RawJob`/`BaseSource` (two-phase fetching), a registry
+    with lazy auto-import, a polite HTTP helper (retries, 429 handling, path-only logging) and
+    generic fetchers `jsonld`, `json_api`, `rss`, `ats` (Greenhouse and Lever, endpoints verified
+    against the live APIs) and `llm_extract`.
+  - ExpertWoka plugin, built from real saved pages (HTML-first, because JSON-LD exists only on
+    country-restricted jobs); fixtures in `tests/fixtures/html/expertwoka/`.
+  - `apps.jobs`: `Job` (shared pool) and `JobReport`; ingestion with upsert, sanitising, pay parsing,
+    eligibility parsing, cross-source dedupe, scam heuristics, expiry and the once-per-job LLM
+    `extract_job` task (`JobExtraction` schema and prompt).
+  - Scheduler (`sources.tick` every 5 minutes), per-source locks, health tracking
+    (ok, degraded, failing), daily `jobs.expire_stale` with 404/410 re-checks.
+  - Admin for sources (run now, health, recent runs) and jobs (search, filters, raw JSON);
+    staff status page at `/app/staff/status/`.
+  - Commands `seed_sources` and `test_source <name> [--dry-run] [--limit N] [--json]`.
+  - `docs/SOURCES.md`, ADR 0012. New settings: `SCRAPER_DELAY_SECONDS`, `JOB_EXPIRY_DAYS`
+    (`SCRAPER_USER_AGENT` is now wired in). New dependencies: `selectolax`, `defusedxml`, `certifi`.
 
 ### Fixed
 - Log lines now keep an explicit `user_id=` field instead of overwriting it with the request

@@ -1,0 +1,14 @@
+{
+  "summary": "Remote contract work evaluating AI model answers in a specialist domain.",
+  "seniority": "mid",
+  "required_skills": ["Technical writing", "Domain expertise", "Attention to detail"],
+  "nice_to_have_skills": ["Published research"],
+  "responsibilities": ["Write test prompts", "Evaluate model responses", "Write reference answers"],
+  "requirements": ["Relevant degree or experience", "Strong written English", "10 hours per week"],
+  "hours_commitment": "10 hours per week",
+  "pay_text": null,
+  "locations": [],
+  "work_type": "remote",
+  "application_steps": ["Online application", "Skills assessment"],
+  "red_flags": []
+}

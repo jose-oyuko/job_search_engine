@@ -20,6 +20,9 @@ dependencies = [
     "pypdf>=6.21.2",
     "python-docx>=1.2.0",
     "tzdata>=2026.5",
+    "selectolax>=1.0.2",
+    "defusedxml>=0.7.1",
+    "certifi>=2026.10.19",
 ]
 
 [dependency-groups]

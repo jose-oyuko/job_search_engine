@@ -1,6 +1,8 @@
 """Pydantic output schemas for LLM tasks. Each later phase adds its own (JobExtraction in
 Phase 4, CV data in Phase 7, and so on); Phase 2 only needs the smoke-test schema."""
 
+from typing import Literal
+
 from pydantic import BaseModel
 
 
@@ -87,3 +89,35 @@ class ParsedCV(BaseModel):
     education: list[ParsedEducation] = []
     certifications: list[ParsedCertification] = []
     skills: list[ParsedSkill] = []
+
+
+# --- job extraction (tasks `extract_job` and `extract_page`, spec §11.6) --------------------------
+
+
+class JobExtraction(BaseModel):
+    summary: str  # <= 40 words
+    seniority: Literal["intern", "junior", "mid", "senior", "lead", "unknown"]
+    required_skills: list[str]  # max 15, normalised names
+    nice_to_have_skills: list[str]  # max 10
+    responsibilities: list[str]  # max 8, short
+    requirements: list[str]  # max 8, short (degrees, years, languages, hours/week...)
+    hours_commitment: str | None = None
+    pay_text: str | None = None  # only if found in the text
+    locations: list[str] = []  # only if found in the text
+    work_type: Literal["remote", "onsite", "hybrid", "unknown"] = "unknown"
+    application_steps: list[str] = []  # e.g. "AI interview", "coding test", "ID verification"
+    red_flags: list[str] = []  # scam-like signals, empty if none
+
+
+class ExtractedPage(BaseModel):
+    """What the LLM reads off a job page for `llm_extract` sources (task `extract_page`)."""
+
+    is_job_posting: bool
+    title: str = ""
+    company: str = ""
+    description: str = ""
+    pay_text: str | None = None
+    locations: list[str] = []
+    work_type: Literal["remote", "onsite", "hybrid", "unknown"] = "unknown"
+    employment_type: str | None = None
+    apply_url: str | None = None
