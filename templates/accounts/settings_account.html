@@ -2,7 +2,8 @@
 {% block title %}Account — {{ SITE_NAME }}{% endblock %}
 {% block content %}
   <h1 class="text-2xl font-semibold tracking-tight">Settings</h1>
-  <p class="mt-1 text-sm text-slate-600">More settings (notifications, usage, privacy) arrive in later releases.</p>
+  {% include "partials/_settings_nav.html" with active="account" %}
+  <p class="mt-4 text-sm text-slate-600">Notifications and privacy settings arrive in later releases.</p>
 
   <section class="card mt-6" aria-labelledby="account-heading">
     <h2 id="account-heading" class="text-lg font-semibold">Account</h2>

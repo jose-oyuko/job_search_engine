@@ -80,7 +80,8 @@ class ContextFilter(logging.Filter):
         record.service = self.service
         record.request_id = request_id_var.get()
         record.task_id = task_id_var.get()
-        record.user_id = user_id_var.get()
+        # An explicit `user_id=` in the log call wins over the request context (e.g. signup).
+        record.user_id = getattr(record, "user_id", None) or user_id_var.get()
         if not hasattr(record, "event"):
             record.event = "log"
         return True

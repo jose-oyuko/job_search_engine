@@ -1,9 +1,13 @@
 import logging
 from collections.abc import Iterator
+from pathlib import Path
 
 import pytest
 from django.core.cache import cache
 
+from apps.llm.prompts import clear_prompt_cache
+from apps.llm.providers import _build, get_provider
+from apps.llm.providers.fake import FakeProvider
 from tests.logcapture import ListHandler
 
 
@@ -24,3 +28,52 @@ def handler() -> Iterator[ListHandler]:
 def _clear_cache() -> None:
     """Rate-limit counters live in the cache; start every test with a clean slate."""
     cache.clear()
+
+
+@pytest.fixture(autouse=True)
+def _reset_llm_caches() -> Iterator[None]:
+    """The provider and prompt files are cached; tests that change settings need a fresh start."""
+    _build.cache_clear()
+    clear_prompt_cache()
+    yield
+    _build.cache_clear()
+    clear_prompt_cache()
+
+
+@pytest.fixture
+def fake_llm() -> FakeProvider:
+    """The shared fake provider (test settings). Push to `.script` to control responses."""
+    provider = get_provider()
+    assert isinstance(provider, FakeProvider)
+    return provider
+
+
+@pytest.fixture
+def prompts_dir(tmp_path: Path, settings) -> Path:  # type: ignore[no-untyped-def]
+    """A temp prompts directory with two small prompts, wired into settings."""
+    score = [
+        "---",
+        "version: 3",
+        "task: score_match",
+        "tier: fast",
+        "---",
+        "@@system",
+        "You score jobs.",
+        "@@user",
+        "Score this: {{ job }}",
+        "",
+    ]
+    letter = [
+        "---",
+        "version: 1",
+        "task: generate_cover_letter",
+        "tier: writer",
+        "---",
+        "Write a letter for {{ job }}.",
+        "",
+    ]
+    (tmp_path / "score_test.md").write_text("\n".join(score), encoding="utf-8")
+    (tmp_path / "letter_test.md").write_text("\n".join(letter), encoding="utf-8")
+    settings.LLM_PROMPTS_DIR = tmp_path
+    clear_prompt_cache()
+    return tmp_path

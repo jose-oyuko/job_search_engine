@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Phase 2 — LLM core layer and usage metering:
+  - `apps.llm.client`: `call_structured` / `call_text` with prompt rendering, result cache,
+    quota checks before any provider call, schema validation with a single repair retry
+    (`LLMOutputError` after that), cost from `LLM_PRICES_JSON`, and one `LLMCall` row per call.
+  - Providers: `fake` (fixtures in `tests/fixtures/llm/`, schema-valid defaults) and
+    `openai_compat` (httpx, timeouts, retries on 5xx/429, optional JSON mode).
+  - Models `LLMCall` and `LLMCache`; quota enforcement against `UsageQuota` (monthly counters
+    per task group plus the USD cap) and a system daily cap (`LLM_SYSTEM_DAILY_USD_CAP`).
+  - Prompt loader with front-matter versioning; `wrap_untrusted()` for untrusted text.
+  - Settings → Usage page (`/app/settings/usage/`) and an LLM spend summary in the admin.
+  - `llm_smoke` management command for a manual check against the configured provider.
+  - New settings: `LLM_TIMEOUT_SECONDS`, `LLM_JSON_MODE`, `LLM_MAX_TOKENS_PARAM`.
+  - ADR 0010. No new dependencies.
+
 - Phase 1 — Accounts, invites, public pages:
   - django-allauth: email login, mandatory verification, password reset, Google sign-in
     (hidden until `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are set); allauth pages restyled.
@@ -36,3 +50,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Tooling: ruff, mypy + django-stubs, pytest (network blocked), pre-commit, GitHub Actions CI,
     Dependabot.
   - ADRs 0001–0008 in `docs/adr/`.
+
+### Fixed
+- Log lines now keep an explicit `user_id=` field instead of overwriting it with the request
+  context (it was always null for signup events).

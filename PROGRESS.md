@@ -4,15 +4,15 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 
 ## Current phase
 
-**Phase 1 — Accounts, invites, public pages** (complete, awaiting owner review). Phase 0 is still awaiting merge; `phase/1-accounts` is branched from `phase/0-foundation`. Next: Phase 2, once the owner says to proceed.
+**Phase 2 — LLM core layer and usage metering** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 3, once the owner says to proceed.
 
 ## Phase status
 
 | Phase | Name | Status | Completed on |
 |---|---|---|---|
 | 0 | Foundation and tooling | 🟨 Done, awaiting owner approval | 2026-10-21 |
-| 1 | Accounts, invites, public pages | 🟨 Done, awaiting owner approval | 2026-10-22 |
-| 2 | LLM core layer and usage metering | ⬜ Not started | |
+| 1 | Accounts, invites, public pages | ✅ Complete | 2026-10-22 |
+| 2 | LLM core layer and usage metering | 🟨 Done, awaiting owner approval | 2026-10-22 |
 | 3 | Profile, tracks and CV import | ⬜ Not started | |
 | 4 | Source framework, ExpertWoka, ingestion | ⬜ Not started | |
 | 5 | Manual job input | ⬜ Not started | |
@@ -81,3 +81,21 @@ Legend: ⬜ Not started · 🟨 In progress · ✅ Complete (approved by owner)
     rate-limit store.
 - Open questions: privacy/terms text uses placeholders (`COMPANY_NAME`, `CONTACT_EMAIL`, governing
   law note); owner must fill them in and have the text reviewed before launch.
+
+### Phase 2 — LLM core layer and usage metering — 2026-10-22
+- Summary: `apps.llm` now has the client (`call_structured`, `call_text`), fake and
+  openai_compat providers, `LLMCall`/`LLMCache`, prompt loader (`apps/llm/prompts/*.md`),
+  `wrap_untrusted`, quota + system-cap enforcement, Settings → Usage, an admin spend summary and
+  the `llm_smoke` command. Work is uncommitted in the working tree on `main` (owner commits).
+- Notes for next session:
+  - Add new prompts as `apps/llm/prompts/<name>.md` with `version`, `task`, `tier` front-matter and
+    `@@system` / `@@user` sections; bump `version` whenever the text changes (cache and logs use it).
+  - Call sites pass `user=None` for system-paid work (counts against `LLM_SYSTEM_DAILY_USD_CAP`).
+  - Quota groups: `scores` = `score_match`; `kits` = `generate_cv` (one per kit); `manual` =
+    `extract_job` / `extract_page`. Phase 7 may refine how a kit is counted.
+  - Cache keys must include the user when the result is user-specific.
+  - Tests: use the `fake_llm` fixture (`.script.append(...)`) and `prompts_dir`; add fixtures in
+    `tests/fixtures/llm/<task>.json`.
+  - Run tests with `ENV_FILE=/nonexistent.env` (as CI does).
+- Open questions: owner to run `llm_smoke` against a real provider (needs `LLM_*` and
+  `LLM_PRICES_JSON` in `.env`).

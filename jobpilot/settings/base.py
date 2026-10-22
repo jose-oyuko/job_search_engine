@@ -1,9 +1,11 @@
 """Settings shared by every environment. Environment-specific modules override this one."""
 
 import contextlib
+import json
 from pathlib import Path
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 from apps.core.logging import build_logging_config
 from apps.core.sentry import init_sentry
@@ -175,8 +177,26 @@ EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
 EMAIL_TIMEOUT = 15
 DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", default="JobPilot <no-reply@example.com>")
 
-# --- LLM (client arrives in Phase 2; the provider switch and quota defaults are needed now) ---
-LLM_PROVIDER = env.str("LLM_PROVIDER", default="fake")
+# --- LLM (§11) ---
+LLM_PROVIDER = env.str("LLM_PROVIDER", default="fake")  # fake | openai_compat
+LLM_BASE_URL = env.str("LLM_BASE_URL", default="https://api.openai.com/v1")
+LLM_API_KEY = env.str("LLM_API_KEY", default="")
+LLM_MODEL_FAST = env.str("LLM_MODEL_FAST", default="")
+LLM_MODEL_WRITER = env.str("LLM_MODEL_WRITER", default="")
+LLM_LOG_BODIES = env.bool("LLM_LOG_BODIES", default=False)  # dev debugging only
+LLM_SYSTEM_DAILY_USD_CAP = env.str("LLM_SYSTEM_DAILY_USD_CAP", default="1.00")
+LLM_TIMEOUT_SECONDS = env.int("LLM_TIMEOUT_SECONDS", default=60)
+# Send response_format=json_object; turn off for providers that reject it (we still extract JSON).
+LLM_JSON_MODE = env.bool("LLM_JSON_MODE", default=True)
+# Newer OpenAI models want "max_completion_tokens"; OpenRouter, Groq and others use "max_tokens".
+LLM_MAX_TOKENS_PARAM = env.str("LLM_MAX_TOKENS_PARAM", default="max_tokens")
+# Model -> {"input_per_mtok": x, "output_per_mtok": y}. Prices are never hardcoded (§11.3).
+try:
+    LLM_PRICES: dict[str, dict[str, float]] = json.loads(env.str("LLM_PRICES_JSON", default="{}"))
+except json.JSONDecodeError as exc:
+    raise ImproperlyConfigured("LLM_PRICES_JSON is not valid JSON") from exc
+LLM_PROMPTS_DIR = BASE_DIR / "apps" / "llm" / "prompts"
+LLM_FAKE_FIXTURES_DIR = BASE_DIR / "tests" / "fixtures" / "llm"
 QUOTA_DEFAULT_MONTHLY_SCORES = env.int("QUOTA_DEFAULT_MONTHLY_SCORES", default=600)
 QUOTA_DEFAULT_MONTHLY_KITS = env.int("QUOTA_DEFAULT_MONTHLY_KITS", default=40)
 QUOTA_DEFAULT_MONTHLY_MANUAL = env.int("QUOTA_DEFAULT_MONTHLY_MANUAL", default=60)

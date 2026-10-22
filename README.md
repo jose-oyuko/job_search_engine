@@ -46,6 +46,18 @@ Google sign-in: create an OAuth client at https://console.cloud.google.com/apis/
 client ID and secret in `.env` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`). Without them the
 button is hidden.
 
+## LLM layer
+
+`LLM_PROVIDER=fake` (the default) runs the whole app without an API key. To use a real
+OpenAI-compatible provider set `LLM_PROVIDER=openai_compat`, `LLM_BASE_URL`, `LLM_API_KEY`,
+`LLM_MODEL_FAST`, `LLM_MODEL_WRITER` and `LLM_PRICES_JSON` in `.env`, then check it:
+
+```bash
+uv run python manage.py llm_smoke
+```
+
+Per-user usage is at `/app/settings/usage/`; staff see spend under Admin → LLM calls.
+
 ## Checks (all must pass before a phase is done)
 
 ```bash
