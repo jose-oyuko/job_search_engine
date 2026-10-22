@@ -1,0 +1,70 @@
+# Development stack. `docker compose up -d db mailpit` is enough; run Django on the host.
+# The app services below are optional (`docker compose --profile app up`).
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: jobpilot
+      POSTGRES_PASSWORD: jobpilot
+      POSTGRES_DB: jobpilot
+    ports:
+      - "${DB_PORT:-5432}:5432" # set DB_PORT in .env if 5432 is taken
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobpilot -d jobpilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # web UI: http://localhost:8025
+
+  web:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: jobpilot.settings.dev
+      DATABASE_URL: postgres://jobpilot:jobpilot@db:5432/jobpilot
+      EMAIL_HOST: mailpit
+      HUEY_DB_PATH: /data/huey.db
+      PRIVATE_MEDIA_ROOT: /data/private
+      SERVICE_NAME: web
+    ports:
+      - "8000:8000"
+    volumes:
+      - appdata:/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: python manage.py run_huey
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: jobpilot.settings.dev
+      DATABASE_URL: postgres://jobpilot:jobpilot@db:5432/jobpilot
+      EMAIL_HOST: mailpit
+      HUEY_DB_PATH: /data/huey.db
+      PRIVATE_MEDIA_ROOT: /data/private
+      SERVICE_NAME: worker
+    volumes:
+      - appdata:/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  appdata:
