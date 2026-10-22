@@ -1,0 +1,5 @@
+{% extends "onboarding_base.html" %}
+{% block step_content %}
+  {% include "profiles/_import_waiting.html" %}
+  <p class="mt-4 text-sm"><a href="{{ next_url }}" class="text-slate-600 underline">Skip for now</a></p>
+{% endblock %}

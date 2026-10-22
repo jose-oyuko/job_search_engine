@@ -1,0 +1,8 @@
+<div class="flex flex-wrap items-start justify-between gap-2">
+  <div class="min-w-0 text-sm">
+    <p>{{ obj.text }}</p>
+    {% if obj.metrics %}<p class="mt-0.5 text-xs font-medium text-brand-700">Metrics: {{ obj.metrics }}</p>{% else %}<p class="mt-0.5 text-xs text-amber-700">No metrics yet</p>{% endif %}
+    {% with skills=obj.skills.all %}{% if skills %}<p class="mt-0.5 text-xs text-slate-500">{% for s in skills %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}{% endwith %}
+  </div>
+  {% include "profiles/_actions.html" %}
+</div>

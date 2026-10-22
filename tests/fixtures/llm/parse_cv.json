@@ -1,0 +1,51 @@
+{
+  "headline": "IT Support Specialist",
+  "summary": "IT support professional with experience in helpdesk, networks and customer service.",
+  "phone": "+254 700 000000",
+  "email": "jane.doe@example.com",
+  "location": "Nairobi, Kenya",
+  "links": [{"label": "LinkedIn", "url": "https://linkedin.com/in/janedoe"}],
+  "years_experience": 4.0,
+  "experiences": [
+    {
+      "title": "IT Support Officer",
+      "company": "Acme Ltd",
+      "location": "Nairobi",
+      "employment_type": "full_time",
+      "start_date": "2021-03",
+      "end_date": null,
+      "is_current": true,
+      "description": "First-line and second-line support for 120 staff.",
+      "bullets": [
+        {"text": "Resolved helpdesk tickets and escalated complex faults", "metrics": "handled about 30 tickets per day", "skills": ["Helpdesk"]},
+        {"text": "Set up and maintained user accounts in Active Directory", "metrics": null, "skills": ["Active Directory"]}
+      ]
+    },
+    {
+      "title": "Intern",
+      "company": "Beta Networks",
+      "location": null,
+      "employment_type": null,
+      "start_date": "2020",
+      "end_date": "2021-02",
+      "is_current": false,
+      "description": null,
+      "bullets": [{"text": "Assisted with network cabling and router configuration", "metrics": null, "skills": ["Networking"]}]
+    }
+  ],
+  "projects": [
+    {"name": "Office network refresh", "role": "Technician", "url": null, "description": "Replaced switches across two floors.", "technologies": ["Networking"], "start_date": "2022-06", "end_date": "2022-08", "highlights": []}
+  ],
+  "education": [
+    {"institution": "University of Nairobi", "qualification": "BSc", "field": "Computer Science", "start_date": "2016", "end_date": "2020", "grade": "Second Class Upper", "notes": null}
+  ],
+  "certifications": [
+    {"name": "CompTIA A+", "issuer": "CompTIA", "issued_on": "2021-05", "expires_on": null, "credential_url": null, "status": "earned"}
+  ],
+  "skills": [
+    {"name": "Helpdesk", "category": "domain", "level": "advanced", "years": 4},
+    {"name": "Active Directory", "category": "tool", "level": null, "years": null},
+    {"name": "Networking", "category": "technical", "level": "intermediate", "years": null},
+    {"name": "Customer service", "category": "soft", "level": null, "years": null}
+  ]
+}

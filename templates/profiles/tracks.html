@@ -1,0 +1,32 @@
+{% extends "app_base.html" %}
+{% block title %}Job targets &mdash; {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight">Job targets</h1>
+      <p class="mt-1 text-sm text-slate-600">A track describes a kind of job you want. We match jobs against your default track.</p>
+    </div>
+    <a href="{% url 'profiles:track_new' %}" class="btn btn-primary">Add a track</a>
+  </div>
+  <div class="mt-6 space-y-3">
+    {% for track in tracks %}
+      <div class="card">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-semibold">{{ track.name }}{% if track.is_default %} <span class="ml-1 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">Default</span>{% endif %}</p>
+            <p class="mt-1 text-sm text-slate-600">{% if track.target_titles %}{{ track.target_titles|join:", " }}{% else %}No titles yet{% endif %}</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {% if not track.is_default %}
+              <form method="post" action="{% url 'profiles:track_default' track.pk %}">{% csrf_token %}<button type="submit" class="btn btn-secondary !min-h-9">Make default</button></form>
+            {% endif %}
+            <a href="{% url 'profiles:track_edit' track.pk %}" class="btn btn-secondary !min-h-9">Edit</a>
+            <form method="post" action="{% url 'profiles:track_delete' track.pk %}">{% csrf_token %}<button type="submit" class="btn btn-secondary !min-h-9 text-red-700">Delete</button></form>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="card text-center"><p class="font-medium">No tracks yet.</p><p class="mt-1 text-sm text-slate-600">Add one so we know what jobs to look for.</p></div>
+    {% endfor %}
+  </div>
+{% endblock %}

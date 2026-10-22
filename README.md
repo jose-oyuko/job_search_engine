@@ -58,6 +58,13 @@ uv run python manage.py llm_smoke
 
 Per-user usage is at `/app/settings/usage/`; staff see spend under Admin → LLM calls.
 
+## Profile and CV import
+
+Your master profile lives at `/app/profile/`. Importing a CV (PDF or DOCX) needs the background
+worker: run `uv run python manage.py run_huey` in a second terminal, otherwise the upload stays on
+"Reading your CV". With `LLM_PROVIDER=fake` the parsed result comes from
+`tests/fixtures/llm/parse_cv.json`, so any readable CV shows the same sample data in development.
+
 ## Checks (all must pass before a phase is done)
 
 ```bash

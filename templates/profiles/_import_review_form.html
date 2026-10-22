@@ -1,0 +1,82 @@
+<form method="post" action="{% url 'profiles:import_apply' cv_import.pk %}" class="space-y-6" novalidate>
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
+
+  <section class="card space-y-4" aria-labelledby="rv-basics">
+    <h2 id="rv-basics" class="text-lg font-semibold">About you</h2>
+    {% include "partials/_form_fields.html" with form=basics_form %}
+  </section>
+
+  {% if data.experiences %}
+  <section class="card" aria-labelledby="rv-exp">
+    <h2 id="rv-exp" class="text-lg font-semibold">Experience</h2>
+    <p class="text-xs text-slate-500">Untick anything that should not be imported.</p>
+    <ul class="mt-3 space-y-3">
+      {% for e in data.experiences %}
+        <li class="flex items-start gap-3">
+          <input type="checkbox" name="exp" value="{{ forloop.counter0 }}" id="exp-{{ forloop.counter0 }}" checked class="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600">
+          <label for="exp-{{ forloop.counter0 }}" class="text-sm"><span class="font-medium">{{ e.title }}</span> at {{ e.company }}
+            <span class="text-slate-500">&middot; {{ e.start_date|default:"?" }} &ndash; {% if e.is_current %}present{% else %}{{ e.end_date|default:"?" }}{% endif %} &middot; {{ e.bullets|length }} bullet{{ e.bullets|length|pluralize }}</span></label>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if data.projects %}
+  <section class="card" aria-labelledby="rv-proj">
+    <h2 id="rv-proj" class="text-lg font-semibold">Projects</h2>
+    <ul class="mt-3 space-y-2">
+      {% for p in data.projects %}
+        <li class="flex items-start gap-3"><input type="checkbox" name="proj" value="{{ forloop.counter0 }}" id="proj-{{ forloop.counter0 }}" checked class="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600"><label for="proj-{{ forloop.counter0 }}" class="text-sm">{{ p.name }}</label></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if data.education %}
+  <section class="card" aria-labelledby="rv-edu">
+    <h2 id="rv-edu" class="text-lg font-semibold">Education</h2>
+    <ul class="mt-3 space-y-2">
+      {% for e in data.education %}
+        <li class="flex items-start gap-3"><input type="checkbox" name="edu" value="{{ forloop.counter0 }}" id="edu-{{ forloop.counter0 }}" checked class="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600"><label for="edu-{{ forloop.counter0 }}" class="text-sm">{{ e.qualification|default:"" }} {{ e.field|default:"" }} &middot; {{ e.institution }}</label></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if data.certifications %}
+  <section class="card" aria-labelledby="rv-cert">
+    <h2 id="rv-cert" class="text-lg font-semibold">Certifications</h2>
+    <ul class="mt-3 space-y-2">
+      {% for c in data.certifications %}
+        <li class="flex items-start gap-3"><input type="checkbox" name="cert" value="{{ forloop.counter0 }}" id="cert-{{ forloop.counter0 }}" checked class="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600"><label for="cert-{{ forloop.counter0 }}" class="text-sm">{{ c.name }}{% if c.issuer %} &middot; {{ c.issuer }}{% endif %}</label></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if data.skills %}
+  <section class="card" aria-labelledby="rv-skills">
+    <h2 id="rv-skills" class="text-lg font-semibold">Skills</h2>
+    <div class="mt-3 grid gap-2 sm:grid-cols-2">
+      {% for s in data.skills %}
+        <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="skill" value="{{ forloop.counter0 }}" checked class="h-4 w-4 rounded border-slate-300 text-brand-600"> {{ s.name }}</label>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="card" aria-labelledby="rv-mode">
+    <h2 id="rv-mode" class="text-lg font-semibold">How should we add this?</h2>
+    <div class="mt-3 space-y-2 text-sm">
+      <label class="flex items-start gap-3"><input type="radio" name="mode" value="merge" {% if default_mode == "merge" %}checked{% endif %} class="mt-1"> <span><span class="font-medium">Merge</span>: add only what is new and keep what you already have.</span></label>
+      <label class="flex items-start gap-3"><input type="radio" name="mode" value="replace" {% if default_mode == "replace" %}checked{% endif %} class="mt-1"> <span><span class="font-medium">Replace</span>: clear my experience, projects, education, certifications and skills first.</span></label>
+    </div>
+  </section>
+
+  <div class="flex flex-wrap items-center gap-3">
+    <button type="submit" class="btn btn-primary">Add to my profile</button>
+    <a class="text-sm text-slate-600 underline" href="{% url 'profiles:import_file' cv_import.pk %}">Download the original file</a>
+  </div>
+</form>

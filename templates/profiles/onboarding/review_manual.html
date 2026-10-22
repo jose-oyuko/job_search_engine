@@ -1,0 +1,13 @@
+{% extends "onboarding_base.html" %}
+{% block step_content %}
+  {% if failed %}<p class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800" role="alert">{{ failed.error }} You can fill in the basics here instead.</p>{% endif %}
+  <p class="text-sm text-slate-600">Tell us a little about you. You can add experience and skills later from your profile.</p>
+  <form method="post" class="card mt-4 space-y-4" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_fields.html" %}
+    <div class="flex flex-wrap gap-3">
+      <button type="submit" class="btn btn-primary">Save and continue</button>
+      <a href="{{ next_url }}" class="btn btn-secondary">Skip</a>
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% load profile_ui %}
+<section class="card" aria-labelledby="h-{{ section.slug }}">
+  <div class="flex items-center justify-between gap-3">
+    <h2 id="h-{{ section.slug }}" class="text-lg font-semibold">{{ heading }}</h2>
+    <button type="button" class="btn btn-secondary" hx-get="{% url 'profiles:item_new' section.slug %}"
+            hx-target="#{{ section|new_id:None }}" hx-swap="outerHTML">Add {{ section.label }}</button>
+  </div>
+  <div id="{{ section|new_id:None }}" class="mt-3"></div>
+  <div class="mt-3">{% include "profiles/_list.html" with scope_id=None %}</div>
+  <p class="hidden text-sm text-slate-500 peer-empty:block">{{ empty }}</p>
+</section>

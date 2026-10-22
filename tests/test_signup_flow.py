@@ -111,7 +111,9 @@ def test_verification_link_activates_login() -> None:
         "/accounts/login/", {"login": "newbie@example.com", "password": SIGNUP["password1"]}
     )
     assert response.status_code == 302
-    assert fresh.get("/app/").status_code == 200
+    # A brand-new account is sent through the onboarding wizard first.
+    assert fresh.get("/app/")["Location"] == "/welcome/"
+    assert fresh.get("/welcome/cv/").status_code == 200
 
 
 def test_invite_cannot_be_used_twice() -> None:

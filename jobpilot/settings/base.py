@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.forms",  # built-in widget templates, so TemplatesSetting can restyle them
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.accounts",
     "apps.llm",
+    "apps.profiles",
     "apps.pages",
 ]
 
@@ -69,6 +71,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "jobpilot.urls"
+# Form widgets render through the project template engine, so ours can override them.
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 WSGI_APPLICATION = "jobpilot.wsgi.application"
 
 TEMPLATES = [
@@ -150,6 +154,8 @@ STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
+
+CV_MAX_UPLOAD_BYTES = env.int("CV_MAX_UPLOAD_BYTES", default=5 * 1024 * 1024)
 
 # --- Private files (never under MEDIA_URL; served only through ownership-checked views) ---
 PRIVATE_MEDIA_ROOT = Path(env.str("PRIVATE_MEDIA_ROOT", default=str(BASE_DIR / "var" / "private")))

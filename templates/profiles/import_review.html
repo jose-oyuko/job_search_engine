@@ -1,0 +1,15 @@
+{% extends "app_base.html" %}
+{% block title %}Review your CV &mdash; {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <h1 class="text-2xl font-semibold tracking-tight">Review your CV</h1>
+  {% if cv_import.status == 'parsed' %}
+    <p class="mt-1 text-sm text-slate-600">Check what we found. We only copy what your CV says; you can fine-tune everything in your profile afterwards.</p>
+    <div class="mt-6">{% include "profiles/_import_review_form.html" %}</div>
+  {% elif cv_import.status == 'failed' %}
+    <div class="card mt-6" role="alert"><p class="font-medium text-red-700">We could not read this CV.</p><p class="mt-1 text-sm text-slate-600">{{ cv_import.error }}</p><a class="btn btn-primary mt-4" href="{% url 'profiles:import_upload' %}">Try another file</a></div>
+  {% elif cv_import.status == 'applied' %}
+    <div class="card mt-6"><p class="font-medium">This CV has already been added to your profile.</p><a class="btn btn-primary mt-4" href="{% url 'profiles:profile' %}">Go to your profile</a></div>
+  {% else %}
+    <div class="mt-6">{% include "profiles/_import_waiting.html" %}</div>
+  {% endif %}
+{% endblock %}

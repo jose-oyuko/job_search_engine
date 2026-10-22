@@ -24,6 +24,7 @@ def _verified_user(email: str = "member@example.com"):  # type: ignore[no-untype
     user = UserFactory(email=email)
     EmailAddress.objects.create(user=user, email=email, verified=True, primary=True)
     complete_signup(user, None)
+    UserSettings.objects.filter(user=user).update(onboarding_completed=True)
     return user
 
 

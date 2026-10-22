@@ -1,0 +1,29 @@
+{% load profile_ui %}
+{% if obj %}
+<div id="{{ section|item_id:obj.pk }}" class="rounded-lg border border-brand-600/40 bg-brand-50/40 p-4">
+  <form method="post" class="space-y-4" novalidate hx-disabled-elt="find button[type=submit]"
+        hx-post="{% url 'profiles:item_save' section.slug obj.pk %}"
+        hx-target="#{{ section|item_id:obj.pk }}" hx-swap="outerHTML">
+    {% include "partials/_form_fields.html" %}
+    <div class="flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-secondary" hx-get="{% url 'profiles:item_show' section.slug obj.pk %}"
+              hx-target="#{{ section|item_id:obj.pk }}" hx-swap="outerHTML">Cancel</button>
+    </div>
+  </form>
+</div>
+{% else %}
+<div id="{{ section|new_id:scope_id }}" class="rounded-lg border border-brand-600/40 bg-brand-50/40 p-4">
+  <form method="post" class="space-y-4" novalidate hx-disabled-elt="find button[type=submit]"
+        hx-post="{% url 'profiles:item_create' section.slug %}"
+        hx-target="#{{ section|new_id:scope_id }}" hx-swap="outerHTML">
+    {% include "partials/_form_fields.html" %}
+    <div class="flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-primary">Add</button>
+      <button type="button" class="btn btn-secondary"
+              hx-get="{% url 'profiles:item_new' section.slug %}?cancel=1{% if scope_id %}&experience={{ scope_id }}{% endif %}"
+              hx-target="#{{ section|new_id:scope_id }}" hx-swap="outerHTML">Cancel</button>
+    </div>
+  </form>
+</div>
+{% endif %}

@@ -1,0 +1,6 @@
+{% extends "onboarding_base.html" %}
+{% block step_content %}
+  <p class="mb-4 text-sm text-slate-600">Check what we found in your CV, then add it to your profile.</p>
+  {% include "profiles/_import_review_form.html" %}
+  <p class="mt-4 text-sm"><a href="{{ next_url }}" class="text-slate-600 underline">Skip this step</a></p>
+{% endblock %}

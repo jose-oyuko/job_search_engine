@@ -1,0 +1,10 @@
+<div class="flex flex-wrap items-start justify-between gap-3">
+  <div class="min-w-0">
+    <p class="font-semibold">{{ obj.name }}{% if obj.role %} <span class="font-normal text-slate-500">&middot; {{ obj.role }}</span>{% endif %}</p>
+    {% if obj.start_date or obj.end_date %}<p class="text-xs text-slate-500">{% if obj.start_date %}{{ obj.start_date|date:"M Y" }}{% endif %} &ndash; {% if obj.end_date %}{{ obj.end_date|date:"M Y" }}{% endif %}</p>{% endif %}
+  </div>
+  {% include "profiles/_actions.html" %}
+</div>
+{% if obj.description %}<p class="mt-2 text-sm text-slate-700">{{ obj.description|linebreaksbr }}</p>{% endif %}
+{% with techs=obj.technologies.all %}{% if techs %}<p class="mt-1 text-xs text-slate-500">{% for t in techs %}{{ t.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}{% endwith %}
+{% if obj.url %}<p class="mt-1 text-xs"><a href="{{ obj.url }}" rel="noopener noreferrer nofollow" target="_blank" class="text-brand-700 underline">{{ obj.url }}</a></p>{% endif %}

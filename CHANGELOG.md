@@ -50,6 +50,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Tooling: ruff, mypy + django-stubs, pytest (network blocked), pre-commit, GitHub Actions CI,
     Dependabot.
   - ADRs 0001–0008 in `docs/adr/`.
+- Phase 3 — Profile, tracks and CV import:
+  - `apps.profiles`: `Profile`, `Skill`, `Track`, `Experience`, `ExperienceBullet`, `Project`,
+    `Education`, `Certification`, `CVImport`; one default track per user and unique skill names
+    are enforced in the database. Every change goes through `services.py`, which bumps
+    `Profile.version`.
+  - Profile editor at `/app/profile/` with HTMX inline add, edit, delete and up/down reordering,
+    a profile-strength meter with tips, and job targets (tracks) at `/app/profile/tracks/`.
+  - CV import: PDF/DOCX upload (extension + magic bytes, 5 MB, decompression-bomb check, random
+    private file names), text extraction (pypdf, python-docx), friendly errors for scanned or
+    password-protected files, `parse_cv` prompt v1 run in a Huey task, a review screen, and apply
+    with replace or merge. Unsupported metrics and skills are dropped after parsing.
+  - Onboarding wizard at `/welcome/` (steps: CV, review, target, location and timezone), built
+    from an extensible step registry; `/app/` redirects there until onboarding is complete.
+  - `profiles/serializers.py`: stable IDs (`EXP-12`, `BUL-88`, ...), a deterministic profile
+    serialiser and a compact summary cached per profile version.
+  - Private, ownership-checked download of uploaded CVs.
+  - New setting: `CV_MAX_UPLOAD_BYTES`. New dependencies: `pypdf`, `python-docx`, `tzdata`.
+  - ADR 0011.
 
 ### Fixed
 - Log lines now keep an explicit `user_id=` field instead of overwriting it with the request

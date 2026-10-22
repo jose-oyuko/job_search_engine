@@ -10,6 +10,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 
+from apps.accounts.models import UserSettings
 from apps.accounts.services import submit_waitlist
 from apps.core.logging import log_event
 
@@ -58,7 +59,12 @@ def terms(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
-    """Placeholder shell; the job feed replaces it in Phase 6."""
+    """Placeholder shell; the job feed replaces it in Phase 6. New users go through the
+    onboarding wizard first (only users who have a settings row, so staff-only accounts are
+    not forced through it)."""
+    settings_row = UserSettings.objects.for_user(request.user).first()
+    if settings_row is not None and not settings_row.onboarding_completed:
+        return redirect("profiles:onboarding_start")
     return render(request, "pages/dashboard.html")
 
 

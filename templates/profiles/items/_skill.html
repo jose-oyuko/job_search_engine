@@ -1,0 +1,4 @@
+<div class="flex flex-wrap items-center justify-between gap-2">
+  <p class="text-sm"><span class="font-medium">{{ obj.name }}</span> <span class="text-slate-500">&middot; {{ obj.get_category_display }}{% if obj.level %} &middot; {{ obj.get_level_display }}{% endif %}{% if obj.years %} &middot; {{ obj.years|floatformat:"-1" }} yrs{% endif %}</span></p>
+  {% include "profiles/_actions.html" %}
+</div>

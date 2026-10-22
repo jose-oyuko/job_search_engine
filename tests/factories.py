@@ -7,6 +7,15 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from apps.accounts.models import Invite, WaitlistEntry
+from apps.profiles.models import (
+    Certification,
+    Education,
+    Experience,
+    ExperienceBullet,
+    Project,
+    Skill,
+    Track,
+)
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -39,3 +48,63 @@ class WaitlistEntryFactory(factory.django.DjangoModelFactory):
     name = factory.Faker("name")
     email = factory.Sequence(lambda n: f"applicant{n}@example.com")
     reason = "Looking for remote work."
+
+
+class SkillFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Skill
+
+    user = factory.SubFactory(UserFactory)
+    name = factory.Sequence(lambda n: f"Skill {n}")
+
+
+class TrackFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Track
+
+    user = factory.SubFactory(UserFactory)
+    name = factory.Sequence(lambda n: f"Track {n}")
+    target_titles = ["Support Engineer"]
+
+
+class ExperienceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Experience
+
+    user = factory.SubFactory(UserFactory)
+    title = factory.Sequence(lambda n: f"Role {n}")
+    company = "Acme Ltd"
+    start_date = datetime.date(2021, 3, 1)
+
+
+class BulletFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ExperienceBullet
+
+    experience = factory.SubFactory(ExperienceFactory)
+    user = factory.SelfAttribute("experience.user")
+    text = factory.Sequence(lambda n: f"Did thing {n}")
+
+
+class ProjectFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Project
+
+    user = factory.SubFactory(UserFactory)
+    name = factory.Sequence(lambda n: f"Project {n}")
+
+
+class EducationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Education
+
+    user = factory.SubFactory(UserFactory)
+    institution = factory.Sequence(lambda n: f"University {n}")
+
+
+class CertificationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Certification
+
+    user = factory.SubFactory(UserFactory)
+    name = factory.Sequence(lambda n: f"Cert {n}")

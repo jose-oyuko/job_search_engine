@@ -1,0 +1,17 @@
+{% load profile_ui %}
+<div class="flex shrink-0 flex-wrap items-center justify-end gap-1">
+  {% if section.ordered %}
+    <button type="button" class="btn btn-secondary !min-h-9 !px-2" aria-label="Move up"
+            hx-post="{% url 'profiles:item_move' section.slug obj.pk %}" hx-vals='{"direction": "up"}'
+            hx-target="#{{ section|item_list_id:obj }}" hx-swap="outerHTML">&uarr;</button>
+    <button type="button" class="btn btn-secondary !min-h-9 !px-2" aria-label="Move down"
+            hx-post="{% url 'profiles:item_move' section.slug obj.pk %}" hx-vals='{"direction": "down"}'
+            hx-target="#{{ section|item_list_id:obj }}" hx-swap="outerHTML">&darr;</button>
+  {% endif %}
+  <button type="button" class="btn btn-secondary !min-h-9 !px-3"
+          hx-get="{% url 'profiles:item_edit' section.slug obj.pk %}"
+          hx-target="#{{ section|item_id:obj.pk }}" hx-swap="outerHTML">Edit</button>
+  <button type="button" class="btn btn-secondary !min-h-9 !px-3 text-red-700"
+          hx-post="{% url 'profiles:item_delete' section.slug obj.pk %}" hx-confirm="Delete this?"
+          hx-target="#{{ section|item_id:obj.pk }}" hx-swap="outerHTML">Delete</button>
+</div>

@@ -1,0 +1,8 @@
+<div class="flex flex-wrap items-start justify-between gap-3">
+  <div class="min-w-0">
+    <p class="font-semibold">{{ obj.institution }}</p>
+    <p class="text-sm text-slate-600">{{ obj.qualification }}{% if obj.field %}, {{ obj.field }}{% endif %}{% if obj.grade %} &middot; {{ obj.grade }}{% endif %}</p>
+    {% if obj.start_date or obj.end_date %}<p class="text-xs text-slate-500">{% if obj.start_date %}{{ obj.start_date|date:"Y" }}{% endif %} &ndash; {% if obj.end_date %}{{ obj.end_date|date:"Y" }}{% endif %}</p>{% endif %}
+  </div>
+  {% include "profiles/_actions.html" %}
+</div>

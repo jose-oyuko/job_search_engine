@@ -1,0 +1,12 @@
+{% extends "onboarding_base.html" %}
+{% block step_content %}
+  <p class="text-sm text-slate-600">Upload your CV and we will fill in your profile for you. You will review everything before it is saved.</p>
+  <form method="post" enctype="multipart/form-data" class="card mt-4 space-y-4" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_fields.html" %}
+    <div class="flex flex-wrap gap-3">
+      <button type="submit" class="btn btn-primary">Upload and continue</button>
+      <a href="{{ next_url }}" class="btn btn-secondary">I will fill it in myself</a>
+    </div>
+  </form>
+{% endblock %}

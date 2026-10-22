@@ -1,0 +1,18 @@
+{% load profile_ui %}
+<div class="flex flex-wrap items-start justify-between gap-3">
+  <div class="min-w-0">
+    <p class="font-semibold">{{ obj.title }}</p>
+    <p class="text-sm text-slate-600">{{ obj.company }}{% if obj.location %} &middot; {{ obj.location }}{% endif %}{% if obj.employment_type %} &middot; {{ obj.get_employment_type_display }}{% endif %}</p>
+    <p class="text-xs text-slate-500">{% if obj.start_date %}{{ obj.start_date|date:"M Y" }}{% else %}?{% endif %} &ndash; {% if obj.end_date %}{{ obj.end_date|date:"M Y" }}{% else %}Present{% endif %}</p>
+  </div>
+  {% include "profiles/_actions.html" %}
+</div>
+{% if obj.description %}<p class="mt-2 text-sm text-slate-700">{{ obj.description|linebreaksbr }}</p>{% endif %}
+<div class="mt-3 border-t border-slate-100 pt-3">
+  <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Bullet points</p>
+  <div class="mt-2">{% include "profiles/_list.html" with section=bullet_section items=obj.bullets.all scope_id=obj.pk %}</div>
+  <div id="new-bullet-{{ obj.pk }}"></div>
+  <button type="button" class="btn btn-secondary mt-2 !min-h-9"
+          hx-get="{% url 'profiles:item_new' 'bullet' %}?experience={{ obj.pk }}"
+          hx-target="#new-bullet-{{ obj.pk }}" hx-swap="outerHTML">Add bullet point</button>
+</div>

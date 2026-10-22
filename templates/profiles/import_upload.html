@@ -1,0 +1,28 @@
+{% extends "app_base.html" %}
+{% block title %}Import a CV &mdash; {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <h1 class="text-2xl font-semibold tracking-tight">Import a CV</h1>
+  <p class="mt-1 text-sm text-slate-600">Upload a PDF or DOCX. We read it, and you review everything before it touches your profile.</p>
+  <form method="post" enctype="multipart/form-data" class="card mt-6 space-y-4" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_fields.html" %}
+    <button type="submit" class="btn btn-primary">Upload and read my CV</button>
+  </form>
+  {% if imports %}
+    <section class="mt-8" aria-labelledby="recent-imports">
+      <h2 id="recent-imports" class="text-lg font-semibold">Recent uploads</h2>
+      <ul class="mt-3 space-y-2">
+        {% for item in imports %}
+          <li class="card flex flex-wrap items-center justify-between gap-2 !p-4">
+            <span class="text-sm">{{ item.original_name|default:"CV" }} <span class="text-slate-500">&middot; {{ item.created_at|date:"j M Y" }}</span></span>
+            <span class="flex items-center gap-3 text-sm">
+              <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium">{{ item.get_status_display }}</span>
+              {% if item.status == 'parsed' %}<a class="font-medium text-brand-700 underline" href="{% url 'profiles:import_review' item.pk %}">Review</a>{% endif %}
+              <a class="text-slate-600 underline" href="{% url 'profiles:import_file' item.pk %}">Download</a>
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+{% endblock %}

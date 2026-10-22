@@ -1,0 +1,2 @@
+{% load profile_ui %}
+<div id="{{ section|list_id:scope_id }}" class="peer space-y-3" role="list">{% for obj in items %}{% include "profiles/_item.html" %}{% endfor %}</div>

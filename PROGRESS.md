@@ -4,7 +4,7 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 
 ## Current phase
 
-**Phase 2 — LLM core layer and usage metering** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 3, once the owner says to proceed.
+**Phase 3 — Profile, tracks and CV import** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 4, once the owner says to proceed.
 
 ## Phase status
 
@@ -12,8 +12,8 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 |---|---|---|---|
 | 0 | Foundation and tooling | 🟨 Done, awaiting owner approval | 2026-10-21 |
 | 1 | Accounts, invites, public pages | ✅ Complete | 2026-10-22 |
-| 2 | LLM core layer and usage metering | 🟨 Done, awaiting owner approval | 2026-10-22 |
-| 3 | Profile, tracks and CV import | ⬜ Not started | |
+| 2 | LLM core layer and usage metering | ✅ Complete | 2026-10-22 |
+| 3 | Profile, tracks and CV import | 🟨 Done, awaiting owner approval | 2026-10-22 |
 | 4 | Source framework, ExpertWoka, ingestion | ⬜ Not started | |
 | 5 | Manual job input | ⬜ Not started | |
 | 6 | Matching, scoring and the job feed | ⬜ Not started | |
@@ -99,3 +99,20 @@ Legend: ⬜ Not started · 🟨 In progress · ✅ Complete (approved by owner)
   - Run tests with `ENV_FILE=/nonexistent.env` (as CI does).
 - Open questions: owner to run `llm_smoke` against a real provider (needs `LLM_*` and
   `LLM_PRICES_JSON` in `.env`).
+
+### Phase 3 — Profile, tracks and CV import — 2026-10-22
+- Summary: `apps.profiles` (models, services, serializers, forms, HTMX editor views, tracks, CV
+  import with Huey parsing, onboarding wizard). All changes are uncommitted in the working tree on
+  `main` (owner commits).
+- Notes for next session:
+  - Use `apps.profiles.services` for every profile write (it bumps `Profile.version`); never call
+    `Model.objects.create` on profile models from views or tasks.
+  - `serializers.serialize_profile(user)` and `profile_summary(user)` are the inputs for scoring
+    (Phase 6) and kits (Phase 7); IDs look like `EXP-12`, `BUL-88`, `SKL-3`; `parse_ref()` reads them.
+  - The wizard step registry is `apps.profiles.onboarding.STEPS`; Phases 8 and 10 append steps.
+  - CV parsing needs the Huey worker (`run_huey`); without it an upload stays on "Reading your CV".
+  - Tests that trigger parsing must use `django_capture_on_commit_callbacks(execute=True)`.
+  - Test file builders are in `tests/files.py` (PDF, DOCX, scanned, encrypted, zip bomb).
+  - Tests ignore E501 (pyproject per-file ignore); app code keeps the 100-column limit.
+  - Reordering uses up/down buttons; SortableJS is not vendored yet (Phase 9 kanban).
+- Open questions: none.

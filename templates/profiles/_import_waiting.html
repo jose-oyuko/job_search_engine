@@ -1,0 +1,5 @@
+<div class="card text-center" role="status" aria-live="polite"
+     hx-get="{% url 'profiles:import_status' cv_import.pk %}" hx-trigger="every 2s" hx-swap="outerHTML">
+  <p class="font-medium">Reading your CV&hellip;</p>
+  <p class="mt-1 text-sm text-slate-600">This usually takes under a minute. This page updates by itself.</p>
+</div>

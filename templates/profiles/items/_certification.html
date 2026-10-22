@@ -1,0 +1,7 @@
+<div class="flex flex-wrap items-start justify-between gap-3">
+  <div class="min-w-0">
+    <p class="font-semibold">{{ obj.name }}</p>
+    <p class="text-sm text-slate-600">{{ obj.issuer }}{% if obj.issued_on %} &middot; {{ obj.issued_on|date:"M Y" }}{% endif %}{% if obj.status == 'in_progress' %} &middot; In progress{% endif %}</p>
+  </div>
+  {% include "profiles/_actions.html" %}
+</div>
