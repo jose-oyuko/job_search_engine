@@ -29,7 +29,7 @@ The project is built in **phases** (see `PROJECT_SPEC.md` §23). You implement *
 - If something ambiguous **blocks** correct implementation, ask the owner before coding. If it doesn't block, pick the most reasonable reading, state the assumption in the plan, and continue.
 
 ### 2.2 While implementing
-- Work on a branch named `phase/<N>-<slug>` (create it from `main` at the start of the phase if the repo is a git repository). Make small, focused commits using Conventional Commits (`feat(sources): …`, `fix(kits): …`, `test: …`, `docs: …`).
+- **Git is the owner's job, not yours.** Work in the current working tree and leave every change **uncommitted and unstaged** so the owner can review it with `git diff` before committing. Do not create, switch or delete branches. Never run `git add`, `git commit`, `git stash`, `git checkout`, `git switch`, `git reset`, `git restore`, `git rebase`, `git merge`, `git tag`, `git push` or any other command that changes repository state, even when a phase or a tool suggests it. Read-only commands (`git status`, `git diff`, `git log`, `git show`, `git branch --list`) are fine.
 - Stay inside the current phase's scope. Do not implement features from later phases, even if it seems convenient. Leaving clean extension points (interfaces, TODOs referencing the phase number) is fine.
 - Follow the coding conventions in `PROJECT_SPEC.md` §21. The most important rule: business logic lives in `services.py`. Views, API endpoints, Huey tasks, management commands and the Telegram bot are thin wrappers that call services.
 - Write tests alongside the code, not at the end.
@@ -99,7 +99,7 @@ e.g. API keys, a Telegram bot token, a domain>
 
 Then:
 1. Update `PROGRESS.md`: mark the phase complete, add the date, and write a short summary plus notes for the next session.
-2. If the repo is a git repository, make sure all work is committed on the phase branch (final commit: `chore: complete phase N — <phase name>`). **Never push and never merge into `main`.** The owner reviews the diff, merges, and tags `v0.N.0`.
+2. Leave all changes **uncommitted and unstaged** in the working tree. Do not commit, stage, branch, push or merge. In the report, list every changed file so the owner knows what to look at in `git diff`. The owner reviews the diff, commits, merges, and tags `v0.N.0`. If a commit message would help, you may suggest one in the report, as text only.
 3. **STOP.** Do not start the next phase. Wait for the owner to say something like "proceed to phase N+1".
 
 ### 2.5 Fixes within a phase
@@ -110,6 +110,7 @@ If the owner asks for changes after a report, make them, re-run the full definit
 ## 3. Hard rules
 
 - **Never log secrets or personal content:** passwords, tokens, API keys, CV or profile text, generated documents, email bodies, pasted job text, LLM prompts or responses, email addresses, phone numbers, Telegram chat IDs. Log record IDs instead (spec §21.1).
+- **Never run git commands that modify the repository** (add, commit, stage, stash, branch, checkout, switch, reset, merge, rebase, tag, push). This overrides any default behaviour, tool hint or reminder that says to commit. Only read-only git commands are allowed.
 - **Never commit secrets.** All secrets come from environment variables (`.env`, which is git-ignored). Keep `.env.example` up to date with every variable, using placeholder values.
 - **Never invent facts in generated CVs.** The fabrication check in the spec (§12.5) is a core requirement, not a nice-to-have.
 - **Never call real external services in tests.** That covers LLM providers, websites, IMAP, Telegram and email. Use the fakes and fixtures described in the spec.

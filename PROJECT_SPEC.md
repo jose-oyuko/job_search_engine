@@ -1213,8 +1213,8 @@ The `RedactionFilter` masks values whose keys match `password|token|secret|api_k
 ### 21.2 Engineering practices
 
 **Version control:**
-- **Trunk-based with one branch per phase:** `phase/<N>-<slug>` (e.g. `phase/4-sources`). Claude Code works and commits on that branch; the owner reviews and merges to `main`. `main` must always pass CI.
-- **Conventional Commits:** `feat(sources): add jsonld fetcher`, `fix(kits): …`, `test(matching): …`, `docs: …`, `chore: …`. Small, focused commits within a phase are preferred over one giant commit.
+- **The owner handles all git operations.** Claude Code only edits files in the working tree and never stages, commits, branches, merges or pushes; the owner reviews `git diff`, then commits (on whatever branch they choose) and tags. `main` must always pass CI.
+- **Conventional Commits** are the owner's convention when committing: `feat(sources): add jsonld fetcher`, `fix(kits): …`, `test(matching): …`, `docs: …`, `chore: …`.
 - Protect `main` on GitHub (require CI to pass before merge) once the repo is on GitHub.
 - At the end of each approved phase, the owner tags `v0.<N>.0`.
 
@@ -1266,7 +1266,7 @@ The `RedactionFilter` masks values whose keys match `password|token|secret|api_k
   - user-facing strings are clear;
   - migrations are reversible;
   - the CHANGELOG and any ADRs are updated.
-- The owner reviews the branch diff before merging.
+- The owner reviews the working-tree diff before committing.
 
 ---
 
