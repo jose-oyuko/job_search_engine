@@ -1,0 +1,17 @@
+{% load allauth %}
+<div class="{% if attrs.type == 'checkbox' or attrs.type == 'radio' %}flex items-start gap-3{% endif %}">
+  {% if attrs.type != "checkbox" and attrs.type != "radio" %}<label for="{{ attrs.id }}" class="label">{% slot label %}{% endslot %}</label>{% endif %}
+  {% if attrs.type == "textarea" %}
+    <textarea class="input" {% if attrs.required %}required{% endif %} {% if attrs.name %}name="{{ attrs.name }}"{% endif %} {% if attrs.id %}id="{{ attrs.id }}"{% endif %} {% if attrs.rows %}rows="{{ attrs.rows }}"{% endif %}>{% slot value %}{% endslot %}</textarea>
+  {% else %}
+    <input class="{% if attrs.type == 'checkbox' or attrs.type == 'radio' %}mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-600{% else %}input{% endif %}"
+           {% if attrs.required %}required{% endif %} {% if attrs.disabled %}disabled{% endif %} {% if attrs.readonly %}readonly{% endif %} {% if attrs.checked %}checked{% endif %}
+           {% if attrs.name %}name="{{ attrs.name }}"{% endif %} {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+           {% if attrs.placeholder %}placeholder="{{ attrs.placeholder }}"{% endif %}
+           {% if attrs.autocomplete %}autocomplete="{{ attrs.autocomplete }}"{% endif %}
+           {% if attrs.value is not None %}value="{{ attrs.value }}"{% endif %} type="{{ attrs.type }}">
+  {% endif %}
+  {% if attrs.type == "checkbox" or attrs.type == "radio" %}<label for="{{ attrs.id }}" class="text-sm text-slate-700">{% slot label %}{% endslot %}</label>{% endif %}
+  {% if attrs.errors %}<div class="mt-1 text-sm text-red-700">{{ attrs.errors }}</div>{% endif %}
+  {% if slots.help_text %}<p class="mt-1 text-xs text-slate-500">{% slot help_text %}{% endslot %}</p>{% endif %}
+</div>

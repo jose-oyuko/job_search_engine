@@ -1,0 +1,7 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<p>Copy these links now. Each can be used once.</p>
+<textarea readonly rows="{{ links|length|add:1 }}" cols="80" onfocus="this.select()">{% for link in links %}{{ link }}
+{% endfor %}</textarea>
+<p><a href="{{ changelist_url }}">Back to invites</a></p>
+{% endblock %}

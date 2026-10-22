@@ -1,0 +1,9 @@
+{% extends "public_base.html" %}
+{# allauth's pages inherit our logged-out shell; its block names are mapped onto ours. #}
+{% block title %}{% block head_title %}{% endblock %} — {{ SITE_NAME }}{% endblock %}
+{% block head %}{% block extra_head %}{% endblock %}{% endblock %}
+{% block content_wrapper %}
+  <div class="mx-auto w-full max-w-md px-4 py-10 sm:py-14">
+    <div class="card space-y-4">{% block content %}{% endblock %}</div>
+  </div>
+{% endblock %}

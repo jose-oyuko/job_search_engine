@@ -1,0 +1,8 @@
+{% extends "account/base_entrance.html" %}
+{% load allauth %}
+{% block head_title %}Invite required{% endblock %}
+{% block content %}
+  {% element h1 %}An invite is required{% endelement %}
+  {% element p %}{{ SITE_NAME }} is invite-only at the moment. If you have an invite link, open it again to continue. If it was for a specific email address, sign up with that address.{% endelement %}
+  <a href="{% url 'pages:landing' %}#request-invite" class="btn btn-primary">Request an invite</a>
+{% endblock %}

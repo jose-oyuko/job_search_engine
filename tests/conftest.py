@@ -2,6 +2,7 @@ import logging
 from collections.abc import Iterator
 
 import pytest
+from django.core.cache import cache
 
 from tests.logcapture import ListHandler
 
@@ -17,3 +18,9 @@ def handler() -> Iterator[ListHandler]:
     yield h
     root.removeHandler(h)
     root.setLevel(old_level)
+
+
+@pytest.fixture(autouse=True)
+def _clear_cache() -> None:
+    """Rate-limit counters live in the cache; start every test with a clean slate."""
+    cache.clear()

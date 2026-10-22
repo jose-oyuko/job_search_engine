@@ -1,0 +1,5 @@
+You have been invited to join {{ site_name }}.
+
+Accept your invite: {{ invite_url }}
+
+This invite can be used once and expires on {{ expires_at|date:"j F Y" }}.

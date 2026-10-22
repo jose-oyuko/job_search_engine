@@ -1,0 +1,18 @@
+{% extends "socialaccount/base_entrance.html" %}
+{% load allauth %}
+{% block head_title %}Finish creating your account{% endblock %}
+{% block content %}
+  {% element h1 %}Almost there{% endelement %}
+  {% element p %}You are signing up with your {{ account.get_provider.name }} account. Confirm the details below to finish.{% endelement %}
+  {% url 'socialaccount_signup' as action_url %}
+  {% element form form=form method="post" action=action_url %}
+    {% slot body %}
+      {% csrf_token %}
+      {% element fields form=form %}{% endelement %}
+      {{ redirect_field }}
+    {% endslot %}
+    {% slot actions %}
+      {% element button type="submit" %}Create account{% endelement %}
+    {% endslot %}
+  {% endelement %}
+{% endblock %}

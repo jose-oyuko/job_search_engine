@@ -1,0 +1,6 @@
+{% extends user.is_authenticated|yesno:"app_base.html,public_base.html" %}
+{% block title %}{% block head_title %}{% endblock %} — {{ SITE_NAME }}{% endblock %}
+{% block head %}{% block extra_head %}{% endblock %}{% endblock %}
+{% block content_wrapper %}
+  <div class="card max-w-xl space-y-4">{% block content %}{% endblock %}</div>
+{% endblock %}

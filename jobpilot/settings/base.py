@@ -31,6 +31,9 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 SITE_URL = env.str("SITE_URL", default="http://localhost:8000")
 SITE_NAME = env.str("SITE_NAME", default="JobPilot")
+# Shown on the legal pages; the owner replaces the placeholders before launch.
+COMPANY_NAME = env.str("COMPANY_NAME", default="[Company name]")
+CONTACT_EMAIL = env.str("CONTACT_EMAIL", default="hello@example.com")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -39,9 +42,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "huey.contrib.djhuey",
     "apps.core",
     "apps.accounts",
+    "apps.llm",
+    "apps.pages",
 ]
 
 MIDDLEWARE = [
@@ -54,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "jobpilot.urls"
@@ -85,6 +95,37 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --- Auth ---
 AUTH_USER_MODEL = "accounts.User"
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+LOGIN_URL = "account_login"
+LOGIN_REDIRECT_URL = "pages:dashboard"
+LOGOUT_REDIRECT_URL = "pages:landing"
+
+# allauth (§15.1): email login, mandatory verification, invite-only signup (adapters below).
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_ADAPTER = "apps.accounts.adapters.InviteOnlyAccountAdapter"
+ACCOUNT_SIGNUP_FORM_CLASS = "apps.accounts.forms.SignupExtrasForm"
+SOCIALACCOUNT_ADAPTER = "apps.accounts.adapters.InviteOnlySocialAccountAdapter"
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+# Google verifies emails, so an invited-then-existing user can sign in with Google too.
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+# Keep False: new Google users must pass through the signup form for the consent checkbox.
+SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_LOGIN_ON_GET = False
+SOCIALACCOUNT_ONLY = False
+
+INVITE_EXPIRY_DAYS = env.int("INVITE_EXPIRY_DAYS", default=14)
+# Bump when the published text changes materially; stored on each ConsentRecord.
+TERMS_VERSION = "2026-10"
+PRIVACY_VERSION = "2026-10"
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -134,8 +175,15 @@ EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
 EMAIL_TIMEOUT = 15
 DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", default="JobPilot <no-reply@example.com>")
 
-# --- LLM (client arrives in Phase 2; the provider switch is needed from the start) ---
+# --- LLM (client arrives in Phase 2; the provider switch and quota defaults are needed now) ---
 LLM_PROVIDER = env.str("LLM_PROVIDER", default="fake")
+QUOTA_DEFAULT_MONTHLY_SCORES = env.int("QUOTA_DEFAULT_MONTHLY_SCORES", default=600)
+QUOTA_DEFAULT_MONTHLY_KITS = env.int("QUOTA_DEFAULT_MONTHLY_KITS", default=40)
+QUOTA_DEFAULT_MONTHLY_MANUAL = env.int("QUOTA_DEFAULT_MONTHLY_MANUAL", default=60)
+QUOTA_DEFAULT_MONTHLY_USD = env.str("QUOTA_DEFAULT_MONTHLY_USD", default="3.00")
+
+# --- Cache (used by django-ratelimit; prod swaps in a database cache shared by all workers) ---
+CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
 
 # --- Logging & observability (§21.1) ---
 LOG_LEVEL = env.str("LOG_LEVEL", default="INFO").upper()
@@ -165,4 +213,17 @@ init_sentry(
 # apps.core.apps.CoreConfig.ready, which logs one WARNING per disabled feature).
 TELEGRAM_BOT_TOKEN = env.str("TELEGRAM_BOT_TOKEN", default="")
 GOOGLE_CLIENT_ID = env.str("GOOGLE_CLIENT_ID", default="")
+GOOGLE_CLIENT_SECRET = env.str("GOOGLE_CLIENT_SECRET", default="")
+GOOGLE_ENABLED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
+SOCIALACCOUNT_PROVIDERS = (
+    {
+        "google": {
+            "APP": {"client_id": GOOGLE_CLIENT_ID, "secret": GOOGLE_CLIENT_SECRET, "key": ""},
+            "SCOPE": ["profile", "email"],
+            "AUTH_PARAMS": {"access_type": "online"},
+        }
+    }
+    if GOOGLE_ENABLED
+    else {}
+)
 INBOUND_IMAP_USER = env.str("INBOUND_IMAP_USER", default="")

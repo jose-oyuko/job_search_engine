@@ -1,15 +1,53 @@
 {% extends "base.html" %}
-{# Authenticated shell. Phase 1 adds the mobile bottom nav and desktop sidebar. #}
+{# Authenticated shell: sidebar on desktop, top bar + bottom nav on phones. #}
 {% block body %}
-  <div class="mx-auto flex min-h-screen max-w-5xl flex-col px-4 py-6">
-    <header class="mb-6 text-lg font-semibold">{{ SITE_NAME }}</header>
-    {% if messages %}
-      <ul class="mb-4 space-y-2" role="status">
-        {% for message in messages %}
-          <li class="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm">{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-    <main class="flex-1">{% block content %}{% endblock %}</main>
+  {% url 'pages:dashboard' as jobs_url %}
+  {% url 'accounts:settings_account' as settings_url %}
+  <div class="min-h-screen md:flex">
+    {# Desktop sidebar #}
+    <aside class="hidden w-60 shrink-0 border-r border-slate-200 bg-white md:flex md:flex-col">
+      <a href="{{ jobs_url }}" class="flex h-16 items-center gap-2 px-5 text-lg font-semibold tracking-tight">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white" aria-hidden="true">J</span>
+        {{ SITE_NAME }}
+      </a>
+      <nav class="flex-1 space-y-1 px-3 py-2 text-sm" aria-label="Main">
+        <a href="{{ jobs_url }}" {% if request.path == jobs_url %}aria-current="page"{% endif %}
+           class="flex items-center rounded-lg px-3 py-2 font-medium {% if request.path == jobs_url %}bg-brand-50 text-brand-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Jobs</a>
+        <span class="flex items-center justify-between rounded-lg px-3 py-2 text-slate-400">Tracker <span class="text-xs">soon</span></span>
+        <span class="flex items-center justify-between rounded-lg px-3 py-2 text-slate-400">Add a job <span class="text-xs">soon</span></span>
+        <span class="flex items-center justify-between rounded-lg px-3 py-2 text-slate-400">Profile <span class="text-xs">soon</span></span>
+        <a href="{{ settings_url }}" {% if '/app/settings/' in request.path %}aria-current="page"{% endif %}
+           class="flex items-center rounded-lg px-3 py-2 font-medium {% if '/app/settings/' in request.path %}bg-brand-50 text-brand-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Settings</a>
+      </nav>
+      <div class="border-t border-slate-200 p-4 text-sm">
+        <p class="truncate text-slate-600">{{ user.full_name|default:user.email }}</p>
+        <a href="{% url 'account_logout' %}" class="mt-1 inline-block text-slate-500 hover:text-slate-800">Sign out</a>
+      </div>
+    </aside>
+
+    <div class="flex min-w-0 flex-1 flex-col">
+      {# Mobile top bar #}
+      <header class="flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 md:hidden">
+        <a href="{{ jobs_url }}" class="flex items-center gap-2 font-semibold tracking-tight">
+          <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-600 text-xs font-bold text-white" aria-hidden="true">J</span>
+          {{ SITE_NAME }}
+        </a>
+        <a href="{% url 'account_logout' %}" class="text-sm text-slate-500">Sign out</a>
+      </header>
+
+      <div class="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-24 md:pb-8">
+        {% include "partials/_messages.html" %}
+        <main class="mt-4">{% block content_wrapper %}{% block content %}{% endblock %}{% endblock %}</main>
+      </div>
+    </div>
+
+    {# Mobile bottom nav #}
+    <nav class="fixed inset-x-0 bottom-0 z-10 grid grid-cols-5 border-t border-slate-200 bg-white text-xs md:hidden" aria-label="Main">
+      <a href="{{ jobs_url }}" class="flex min-h-14 flex-col items-center justify-center gap-0.5 {% if request.path == jobs_url %}font-semibold text-brand-700{% else %}text-slate-600{% endif %}">Jobs</a>
+      <span class="flex min-h-14 flex-col items-center justify-center text-slate-300">Tracker</span>
+      <span class="flex min-h-14 flex-col items-center justify-center text-slate-300">Add</span>
+      <span class="flex min-h-14 flex-col items-center justify-center text-slate-300">Profile</span>
+      <a href="{{ settings_url }}" class="flex min-h-14 flex-col items-center justify-center {% if '/app/settings/' in request.path %}font-semibold text-brand-700{% else %}text-slate-600{% endif %}">Settings</a>
+    </nav>
   </div>
 {% endblock %}
