@@ -105,6 +105,11 @@ class BaseSource:
             except SourceError as exc:
                 self.errors.append(str(exc))
 
+    def match_url(self, url: str) -> str | None:
+        """If `url` is a detail page of this source, its external ID; otherwise None. Used by
+        manual "paste a URL" input to reuse the source's own parser (spec §8.1)."""
+        return None
+
     def is_gone(self, external_id: str, url: str) -> bool | None:
         """Re-check one job: True if its page is gone (404/410), False if it is still there, None
         if we cannot tell. Used by the daily expiry task. Page-based sources just re-request the

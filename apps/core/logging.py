@@ -34,6 +34,10 @@ _STANDARD_ATTRS = set(logging.LogRecord("", 0, "", 0, "", (), None).__dict__) | 
     "service",
 }
 _CONTEXT_ATTRS = ("request_id", "task_id", "user_id")
+_RESERVED_RECORD_ATTRS = frozenset(logging.LogRecord("", 0, "", 0, "", (), None).__dict__) | {
+    "message",
+    "asctime",
+}
 
 
 def mask_text(text: str) -> str:
@@ -62,6 +66,10 @@ def _extra_fields(record: logging.LogRecord) -> dict[str, Any]:
 def log_event(logger: logging.Logger, level: int, event: str, msg: str, **fields: Any) -> None:
     """Log `msg` with a snake_case `event` name and structured fields."""
     exc_info = fields.pop("exc_info", None)
+    # A field named like a LogRecord attribute (`created`, `name`, `module`...) would make the
+    # logging module raise KeyError, so such fields get a suffix instead of crashing the caller.
+    for key in [k for k in fields if k in _RESERVED_RECORD_ATTRS]:
+        fields[f"{key}_field"] = fields.pop(key)
     logger.log(level, msg, extra={"event": event, **fields}, exc_info=exc_info)
 
 

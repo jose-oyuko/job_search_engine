@@ -85,7 +85,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Commands `seed_sources` and `test_source <name> [--dry-run] [--limit N] [--json]`.
   - `docs/SOURCES.md`, ADR 0012. New settings: `SCRAPER_DELAY_SECONDS`, `JOB_EXPIRY_DAYS`
     (`SCRAPER_USER_AGENT` is now wired in). New dependencies: `selectolax`, `defusedxml`, `certifi`.
+- Phase 5 — Manual job input:
+  - `/app/jobs/add/` with two tabs (paste a link, paste a description) and a simple job page at
+    `/app/jobs/<id>/` (public jobs and the user's own private jobs only).
+  - URL path in spec order: blocked sites (LinkedIn, Indeed, Glassdoor, ...) show "paste the
+    description instead"; a configured source's own parser (ExpertWoka URLs); JSON-LD without the
+    LLM; otherwise `extract_page` on the user's manual-extraction allowance.
+  - `apps/core/ssrf.py`: SSRF-safe fetching (public addresses only, connection pinned to the
+    validated IP, validated redirects, 2 MB and 20 s caps, HTML only).
+  - Pasted text creates a private job via `extract_job` (`JobExtraction` gained optional `title`
+    and `company`); a repeat paste returns the same job at no charge.
+  - 20 additions per user per day across both tabs; usage shows on Settings → Usage.
+  - `apps/jobs/matching_hook.py`: a no-op until Phase 6 provides the matching service.
+  - ADR 0013. No new dependencies.
 
 ### Fixed
+- `log_event` no longer raises when a field is named like a `LogRecord` attribute (`created`,
+  `name`, `module`); the field gets a `_field` suffix.
 - Log lines now keep an explicit `user_id=` field instead of overwriting it with the request
   context (it was always null for signup events).

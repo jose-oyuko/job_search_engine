@@ -83,3 +83,27 @@ def test_request_id_is_generated_when_missing_or_invalid(handler: ListHandler) -
 def test_healthz_is_not_access_logged(handler: ListHandler) -> None:
     Client().get("/healthz")
     assert not handler.events("http_request")
+
+
+def test_log_event_fields_named_like_logrecord_attributes_do_not_crash(handler) -> None:  # type: ignore[no-untyped-def]
+    import logging
+
+    from apps.core.logging import log_event
+
+    log_event(
+        logging.getLogger("t"),
+        logging.INFO,
+        "thing_happened",
+        "msg",
+        created=True,
+        name="x",
+        module="m",
+        count=2,
+    )
+    (line,) = handler.events("thing_happened")
+    assert (line["created_field"], line["name_field"], line["module_field"], line["count"]) == (
+        True,
+        "x",
+        "m",
+        2,
+    )

@@ -1,0 +1,46 @@
+{% extends "app_base.html" %}
+{% block title %}Add a job &mdash; {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <h1 class="text-2xl font-semibold tracking-tight">Add a job</h1>
+  <p class="mt-1 text-sm text-slate-600">Found a job somewhere else? Add it here to see how well it fits you.</p>
+
+  <nav class="mt-5 flex gap-2 border-b border-slate-200 text-sm" role="tablist" aria-label="How to add a job">
+    <a role="tab" href="{% url 'jobs:add' %}?tab=url" aria-selected="{% if tab == 'url' %}true{% else %}false{% endif %}"
+       class="-mb-px border-b-2 px-3 py-2 {% if tab == 'url' %}border-brand-600 font-semibold text-brand-700{% else %}border-transparent text-slate-600 hover:text-slate-900{% endif %}">Paste a link</a>
+    <a role="tab" href="{% url 'jobs:add' %}?tab=text" aria-selected="{% if tab == 'text' %}true{% else %}false{% endif %}"
+       class="-mb-px border-b-2 px-3 py-2 {% if tab == 'text' %}border-brand-600 font-semibold text-brand-700{% else %}border-transparent text-slate-600 hover:text-slate-900{% endif %}">Paste a description</a>
+  </nav>
+
+  {% if tab == 'url' %}
+    <form method="post" action="{% url 'jobs:add_url' %}" class="card mt-5 space-y-4" role="tabpanel" novalidate>
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" with form=url_form %}
+      <button type="submit" class="btn btn-primary w-full sm:w-auto">Add job</button>
+      <p class="text-xs text-slate-500">
+        We read the page for you. Sites such as {{ blocked_sites|join:", " }} do not allow that;
+        for those, use <a href="{% url 'jobs:add' %}?tab=text" class="underline">Paste a description</a> instead.
+      </p>
+    </form>
+  {% else %}
+    <form method="post" action="{% url 'jobs:add_text' %}" class="card mt-5 space-y-4" role="tabpanel" novalidate>
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" with form=text_form %}
+      <p class="text-xs text-slate-500">Only you can see jobs you paste in. Title and company are optional; we try to find them in the text.</p>
+      <button type="submit" class="btn btn-primary w-full sm:w-auto">Add job</button>
+    </form>
+  {% endif %}
+
+  {% if recent %}
+    <section class="mt-8" aria-labelledby="recent-heading">
+      <h2 id="recent-heading" class="text-lg font-semibold">Jobs you pasted</h2>
+      <ul class="mt-3 space-y-2">
+        {% for job in recent %}
+          <li><a href="{% url 'jobs:detail' job.pk %}" class="card flex flex-wrap items-center justify-between gap-2 !p-4 hover:border-brand-600">
+            <span class="text-sm font-medium">{{ job.title }} <span class="font-normal text-slate-500">&middot; {{ job.company }}</span></span>
+            <span class="text-xs text-slate-500">{{ job.created_at|date:"j M" }}</span>
+          </a></li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+{% endblock %}

@@ -40,6 +40,11 @@ class LlmExtractSource(JsonLdSource):
         configured = int(self.config.get("max_new_per_run", 10))
         return min(configured, self.limit) if self.limit is not None else configured
 
+    def match_url(self, url: str) -> str | None:
+        # Manual URL input reads such pages itself, so the extraction is paid by the user's quota
+        # rather than by the system.
+        return None
+
     def parse_detail(self, html: str, external_id: str, url: str) -> RawJob:
         text = page_text(html)
         path = urlsplit(url).path

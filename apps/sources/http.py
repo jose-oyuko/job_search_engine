@@ -1,18 +1,16 @@
 """HTTP access for fetchers (spec §6.3): one polite client, bounded retries, 429 awareness."""
 
-import functools
 import logging
-import ssl
 import time
 from collections.abc import Callable
 from typing import Any
 from urllib.parse import urlsplit
 
-import certifi
 import httpx
 from django.conf import settings
 
 from apps.core.logging import log_event
+from apps.core.tls import shared_ssl_context
 
 from .exceptions import HTTPStatusFailure, RateLimited, SourceError
 
@@ -24,16 +22,10 @@ MAX_BODY_BYTES = 5 * 1024 * 1024
 _RETRYABLE = {500, 502, 503, 504}
 
 
-@functools.lru_cache(maxsize=1)
-def _ssl_context() -> ssl.SSLContext:
-    """Loading the CA bundle takes about half a second, so do it once per process."""
-    return ssl.create_default_context(cafile=certifi.where())
-
-
 def build_client() -> httpx.Client:
     """One shared client per run, identifying itself with `SCRAPER_USER_AGENT`."""
     return httpx.Client(
-        verify=_ssl_context(),
+        verify=shared_ssl_context(),
         headers={"User-Agent": settings.SCRAPER_USER_AGENT, "Accept-Language": "en"},
         timeout=TIMEOUT_SECONDS,
         follow_redirects=True,

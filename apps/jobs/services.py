@@ -272,6 +272,55 @@ def touch_seen(
     )
 
 
+# --- manual jobs (spec §8) -----------------------------------------------------
+
+
+def ingest_manual_job(
+    raw: RawJob,
+    *,
+    origin: str,
+    visibility: str,
+    owner: Any = None,
+    now: datetime.datetime | None = None,
+) -> tuple[Job, bool]:
+    """Create a job that has no source (manual URL or pasted text). Returns `(job, created)`.
+
+    A *public* job that is already in the pool (same URL, or the same company and title seen in the
+    last 30 days) is reused instead of duplicated. Private jobs are never matched against other
+    people's jobs, so nothing leaks between users.
+    """
+    now = now or timezone.now()
+    fields = _derived_fields(raw)
+    if visibility == Job.Visibility.PUBLIC:
+        existing = _find_public_job(fields["url"], fields["dedupe_key"], now)
+        if existing is not None:
+            Job.objects.filter(pk=existing.pk).update(last_seen_at=now, status=Job.Status.ACTIVE)
+            return existing, False
+    job = Job.objects.create(
+        source=None,
+        external_id="",
+        origin=origin,
+        visibility=visibility,
+        owner=owner,
+        first_seen_at=now,
+        last_seen_at=now,
+        **fields,
+    )
+    return job, True
+
+
+def _find_public_job(url: str, dedupe_key: str, now: datetime.datetime) -> Job | None:
+    public = Job.objects.canonical().filter(visibility=Job.Visibility.PUBLIC)
+    if url:
+        by_url = public.filter(url=url).first()
+        if by_url is not None:
+            return by_url
+    if dedupe_key and dedupe_key != ":":
+        window = now - datetime.timedelta(days=DEDUPE_WINDOW_DAYS)
+        return public.active().filter(dedupe_key=dedupe_key, first_seen_at__gte=window).first()
+    return None
+
+
 # --- expiry ----------------------------------------------
 
 
@@ -350,12 +399,12 @@ def extract_job_details(job_id: int) -> bool:
     extracted["requirements"] = _truncate(result.requirements, 8)
     job.extracted = extracted
     job.extracted_at = timezone.now()
-    _fill_from_extraction(job, result)
+    fill_from_extraction(job, result)
     job.save()
     return True
 
 
-def _fill_from_extraction(job: Job, result: JobExtraction) -> None:
+def fill_from_extraction(job: Job, result: JobExtraction) -> None:
     """Fill pay, locations and work type the source did not provide, then re-normalise (§11.6)."""
     if not job.pay_text and result.pay_text:
         pay = parse_pay(result.pay_text)

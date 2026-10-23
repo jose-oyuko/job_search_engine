@@ -168,6 +168,12 @@ class JsonLdSource(BaseSource):
         segment = path.rstrip("/").rsplit("/", 1)[-1]
         return segment or None
 
+    def match_url(self, url: str) -> str | None:
+        """A detail URL on this source's own host that looks like one of its job links."""
+        if urlsplit(url).netloc.lower() != urlsplit(self.list_url).netloc.lower():
+            return None
+        return self.external_id_for(url)
+
     def detail_url(self, external_id: str) -> str:
         try:
             return self._urls[external_id]

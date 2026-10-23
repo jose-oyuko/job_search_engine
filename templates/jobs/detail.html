@@ -1,0 +1,51 @@
+{% extends "app_base.html" %}
+{% block title %}{{ job.title }} &mdash; {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <p><a href="{% url 'jobs:add' %}" class="text-sm text-slate-600 underline">&larr; Add another job</a></p>
+
+  <header class="mt-3">
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      {% if job.visibility == 'private' %}<span class="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-700">Private: only you can see this</span>{% endif %}
+      {% if job.status == 'expired' %}<span class="rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-800">This job may have closed</span>{% endif %}
+      {% if eligible is None %}<span class="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-700">Eligibility unclear</span>
+      {% elif eligible %}<span class="rounded-full bg-green-50 px-2 py-0.5 font-medium text-green-700">Open to people in {{ country }}</span>
+      {% else %}<span class="rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700">Not open to people in {{ country }}</span>{% endif %}
+    </div>
+    <h1 class="mt-2 text-2xl font-semibold tracking-tight">{{ job.title }}</h1>
+    <p class="text-slate-600">{{ job.company }}</p>
+  </header>
+
+  {% if flags %}
+    <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="alert">
+      <p class="font-medium">Be careful with this listing</p>
+      <ul class="mt-1 list-disc pl-5">{% for flag in flags %}<li>{{ flag }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+
+  <dl class="card mt-5 grid gap-3 text-sm sm:grid-cols-3">
+    <div><dt class="text-slate-500">Pay</dt><dd class="font-medium">{{ job.pay_text|default:"Not stated" }}</dd></div>
+    <div><dt class="text-slate-500">Work type</dt><dd class="font-medium">{{ job.get_work_type_display }}</dd></div>
+    <div><dt class="text-slate-500">Open to</dt><dd class="font-medium">{% if job.locations_raw %}{{ job.locations_raw|join:", " }}{% else %}Not stated{% endif %}</dd></div>
+  </dl>
+
+  {% if job.apply_url or job.url %}
+    <p class="mt-4"><a href="{% firstof job.apply_url job.url %}" target="_blank" rel="noopener noreferrer nofollow" class="btn btn-primary">Open the original posting</a></p>
+  {% endif %}
+
+  {% if extracted.summary %}
+    <section class="card mt-5" aria-labelledby="summary-heading">
+      <h2 id="summary-heading" class="text-lg font-semibold">At a glance</h2>
+      <p class="mt-2 text-sm text-slate-700">{{ extracted.summary }}</p>
+      {% if extracted.required_skills %}<p class="mt-3 text-sm"><span class="font-medium">Skills asked for:</span> {{ extracted.required_skills|join:", " }}</p>{% endif %}
+      {% if extracted.requirements %}<ul class="mt-2 list-disc pl-5 text-sm text-slate-700">{% for item in extracted.requirements %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+    </section>
+  {% endif %}
+
+  <section class="card mt-5" aria-labelledby="description-heading">
+    <h2 id="description-heading" class="text-lg font-semibold">Description</h2>
+    <div class="prose-legal mt-3 text-sm">
+      {# description_html was sanitised with nh3 when the job was saved; pasted text is escaped. #}
+      {% if job.description_html %}{{ job.description_html|safe }}{% else %}{{ job.description_text|linebreaks }}{% endif %}
+    </div>
+  </section>
+{% endblock %}

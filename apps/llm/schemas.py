@@ -95,6 +95,8 @@ class ParsedCV(BaseModel):
 
 
 class JobExtraction(BaseModel):
+    title: str | None = None  # only if the posting names the role (used for pasted text)
+    company: str | None = None  # only if the posting names the employer
     summary: str  # <= 40 words
     seniority: Literal["intern", "junior", "mid", "senior", "lead", "unknown"]
     required_skills: list[str]  # max 15, normalised names

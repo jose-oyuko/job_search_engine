@@ -54,8 +54,8 @@ select = ["E", "F", "I", "B", "UP", "DJ", "SIM", "S"]
 
 [tool.ruff.lint.per-file-ignores]
 # Tests keep long asserts and inline literals readable; line length is enforced on app code.
-"tests/**" = ["S101", "S105", "S106", "E501"]
-"**/tests/**" = ["S101", "S105", "S106", "E501"]
+"tests/**" = ["S101", "S104", "S105", "S106", "E501"]
+"**/tests/**" = ["S101", "S104", "S105", "S106", "E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["apps", "jobpilot"]

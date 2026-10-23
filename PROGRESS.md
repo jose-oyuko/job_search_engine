@@ -4,7 +4,7 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 
 ## Current phase
 
-**Phase 4 — Source framework, ExpertWoka, ingestion** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 5, once the owner says to proceed.
+**Phase 5 — Manual job input** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 6, once the owner says to proceed.
 
 ## Phase status
 
@@ -14,8 +14,8 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 | 1 | Accounts, invites, public pages | ✅ Complete | 2026-10-22 |
 | 2 | LLM core layer and usage metering | ✅ Complete | 2026-10-22 |
 | 3 | Profile, tracks and CV import | ✅ Complete | 2026-10-22 |
-| 4 | Source framework, ExpertWoka, ingestion | 🟨 Done, awaiting owner approval | 2026-10-22 |
-| 5 | Manual job input | ⬜ Not started | |
+| 4 | Source framework, ExpertWoka, ingestion | ✅ Complete | 2026-10-22 |
+| 5 | Manual job input | 🟨 Done, awaiting owner approval | 2026-10-22 |
 | 6 | Matching, scoring and the job feed | ⬜ Not started | |
 | 7 | Application kit generation and documents | ⬜ Not started | |
 | 8 | Notifications: Telegram and email | ⬜ Not started | |
@@ -138,3 +138,21 @@ Legend: ⬜ Not started · 🟨 In progress · ✅ Complete (approved by owner)
     becomes a real newline); use the Write/Edit tools or build strings with `chr(92)`.
 - Open questions: ExpertWoka's terms bar republishing their materials without permission; ask them
   before a public launch. Set a real contact URL in `SCRAPER_USER_AGENT`.
+
+### Phase 5 — Manual job input — 2026-10-22
+- Summary: add-a-job page (link or pasted text), SSRF-safe fetcher, source-parser reuse, JSON-LD and
+  LLM paths, private text jobs, daily limit, simple job detail page, matching hook seam. Changes are
+  uncommitted in the working tree on `main` (owner commits).
+- Notes for next session:
+  - Phase 6 must provide `apps.matching.services.match_job_for_user(user, job)`; manual input calls it
+    through `apps/jobs/matching_hook.py` (create the Match, score it, count the quota) and the job
+    detail page (`templates/jobs/detail.html`) should then show the score. The page is deliberately
+    simple; Phase 6/7 replace it with the full detail page and kit panel.
+  - Every user-supplied URL must go through `apps.core.ssrf.safe_fetch`; never call httpx directly
+    on user input. Phase 10 (email alerts) and any future "open link" feature should reuse it.
+  - Manual public jobs have `source=None`; `Job.objects.visible_to(user)` is the access rule and the
+    detail view 404s on other users' private jobs.
+  - `blocked_sites` list is `BLOCKED_DOMAINS` in `apps/jobs/manual.py`.
+  - Tests: DNS is faked by patching `apps.core.ssrf.system_resolver`; pages are served at the pinned
+    IP URL (`https://93.184.216.34/...`) with respx.
+- Open questions: none.

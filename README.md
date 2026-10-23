@@ -77,6 +77,12 @@ Sources, runs and jobs are in the admin; source health and recent runs are at `/
 (staff only). See `docs/SOURCES.md` to add a site. Set `SCRAPER_USER_AGENT` to include a real contact
 URL before running against live sites.
 
+## Adding a job by hand
+
+`/app/jobs/add/` takes a link or a pasted description. Links are fetched through an SSRF-safe reader
+(public addresses only); LinkedIn, Indeed and similar sites cannot be read, so paste the description
+for those. Each user can add 20 jobs a day.
+
 ## Checks (all must pass before a phase is done)
 
 ```bash
