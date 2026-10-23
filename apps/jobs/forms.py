@@ -1,5 +1,7 @@
 from django import forms
 
+from .models import JobReport
+
 
 class UrlForm(forms.Form):
     url = forms.CharField(
@@ -26,3 +28,8 @@ class TextForm(forms.Form):
         max_length=2000, required=False, label="Link to the original posting",
         widget=forms.TextInput(attrs={"inputmode": "url"}),
     )  # fmt: skip
+
+
+class ReportForm(forms.Form):
+    reason = forms.ChoiceField(choices=JobReport.Reason.choices, label="What is wrong?")
+    note = forms.CharField(max_length=500, required=False, label="Details (optional)")

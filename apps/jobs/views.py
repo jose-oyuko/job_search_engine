@@ -13,12 +13,16 @@ from django_ratelimit.decorators import ratelimit
 from apps.accounts.models import User, UserSettings
 from apps.core.logging import log_event
 from apps.llm.exceptions import QuotaExceeded
+from apps.matching import services as matching_services
+from apps.matching.forms import DismissForm
+from apps.matching.models import Match
+from apps.profiles.models import Profile
 
 from . import manual
 from .eligibility import is_eligible
-from .forms import TextForm, UrlForm
+from .forms import ReportForm, TextForm, UrlForm
 from .manual import ManualJobError, NeedsDetails
-from .models import Job
+from .models import Job, JobReport
 from .scam import FLAG_LABELS
 
 logger = logging.getLogger(__name__)
@@ -112,23 +116,61 @@ def _added(request: HttpRequest, result: manual.ManualResult) -> HttpResponse:
 @require_GET
 def detail(request: HttpRequest, pk: int) -> HttpResponse:
     """Public jobs and the user's own private jobs; anyone else's private job is a 404."""
-    job = get_object_or_404(Job.objects.visible_to(request.user), pk=pk)
+    user = _user(request)
+    job = get_object_or_404(Job.objects.visible_to(user), pk=pk)
     canonical_id = job.duplicate_of_id
-    if (
-        canonical_id is not None
-        and Job.objects.visible_to(request.user).filter(pk=canonical_id).exists()
-    ):
+    if canonical_id is not None and Job.objects.visible_to(user).filter(pk=canonical_id).exists():
         return redirect("jobs:detail", pk=canonical_id)
-    country = (
-        UserSettings.objects.for_user(request.user).values_list("country", flat=True).first()
-        or "KE"
-    )
+    country = UserSettings.objects.for_user(user).values_list("country", flat=True).first() or "KE"
+
+    # The user's own match, if any: score, strengths and gaps, and why it was shown.
+    match = Match.objects.for_user(user).select_related("track").filter(job=job).first()
+    version = Profile.objects.filter(user=user).values_list("version", flat=True).first() or 1
+    scoring_pending = False
+    if match is not None:
+        matching_services.mark_seen(match)
+        # Lazy refresh: an unscored or stale match is scored when it is viewed (spec §10.1).
+        scoring_pending = matching_services.ensure_scoring_queued(user, match, version)
     context: dict[str, Any] = {
         "job": job,
         "country": country,
         "eligible": is_eligible(job, country),
         "flags": [FLAG_LABELS.get(f, f) for f in job.scam_flags if f in FLAG_LABELS],
         "extracted": job.extracted or {},
+        "match": match,
+        "stale": match is not None and match.is_stale(version),
+        "scoring_pending": scoring_pending and match is not None and match.score is None,
+        "scores_exhausted": match is not None and matching_services.scores_exhausted(user),
+        "report_form": ReportForm(),
+        "dismiss_form": DismissForm(),
+        "alternate_urls": [u for u in job.alternate_urls if isinstance(u, str)][:5],
     }
     log_event(logger, logging.DEBUG, "job_viewed", "Job viewed", job_id=job.pk)
     return render(request, "jobs/detail.html", context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def report(request: HttpRequest, pk: int) -> HttpResponse:
+    """ "Report this listing" (spec §5.5): scam, expired, wrong information or other."""
+    user = _user(request)
+    job = get_object_or_404(Job.objects.visible_to(user), pk=pk)
+    form = ReportForm(request.POST)
+    if form.is_valid():
+        JobReport.objects.update_or_create(
+            user=user,
+            job=job,
+            defaults={"reason": form.cleaned_data["reason"], "note": form.cleaned_data["note"]},
+        )
+        log_event(
+            logger,
+            logging.INFO,
+            "job_reported",
+            "Job reported",
+            job_id=job.pk,
+            reason=form.cleaned_data["reason"],
+        )
+        messages.success(request, "Thanks. We will take a look at this listing.")
+    else:
+        messages.error(request, "Please choose a reason for the report.")
+    return redirect("jobs:detail", pk=job.pk)

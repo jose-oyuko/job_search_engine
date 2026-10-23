@@ -1,0 +1,7 @@
+{% for card in cards %}{% include "matching/_card.html" %}{% endfor %}
+{% if next_url %}
+  <div id="feed-end" class="pt-2 text-center">
+    <button type="button" class="btn btn-secondary" hx-get="{{ next_url }}" hx-target="#feed-end" hx-swap="outerHTML"
+            hx-disabled-elt="this">Load more</button>
+  </div>
+{% endif %}

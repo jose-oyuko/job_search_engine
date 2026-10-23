@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from apps.accounts.models import Invite, WaitlistEntry
 from apps.jobs.models import Job
+from apps.matching.models import Match
 from apps.profiles.models import (
     Certification,
     Education,
@@ -132,3 +133,12 @@ class JobFactory(factory.django.DjangoModelFactory):
     company = factory.Sequence(lambda n: f"Company {n}")
     first_seen_at = factory.LazyFunction(timezone.now)
     last_seen_at = factory.LazyFunction(timezone.now)
+
+
+class MatchFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Match
+
+    user = factory.SubFactory(UserFactory)
+    job = factory.SubFactory(JobFactory)
+    rule_pass = True

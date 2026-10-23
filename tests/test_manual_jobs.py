@@ -698,8 +698,9 @@ def test_logs_never_contain_the_pasted_text_or_urls(
 # --- the matching hook ---------------------------------------------------------------------------------------------------
 
 
-def test_the_matching_hook_is_a_noop_until_phase_6(user) -> None:  # type: ignore[no-untyped-def]
-    assert matching_hook.job_added_for_user(user, JobFactory()) is False
+def test_the_matching_hook_reaches_the_matching_service(user) -> None:  # type: ignore[no-untyped-def]
+    # Phase 6 provides apps.matching.services.match_job_for_user; with no job target it does nothing.
+    assert matching_hook.job_added_for_user(user, JobFactory()) is True
 
 
 def test_the_matching_hook_calls_the_matching_service_when_it_exists(

@@ -20,6 +20,11 @@ logger = logging.getLogger(__name__)
 def extract_job_task(job_id: int) -> None:
     """LLM extraction for one new job (system-paid, once per job). Idempotent."""
     services.extract_job_details(job_id)
+    # Match whether or not extraction worked: the rules also use the title and description.
+    from apps.core.tasks import enqueue
+    from apps.matching.tasks import match_new_job_task
+
+    enqueue(match_new_job_task, job_id)
 
 
 @periodic_task(crontab(hour="2", minute="0"), name="jobs.expire_stale")

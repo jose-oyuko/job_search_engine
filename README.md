@@ -77,6 +77,13 @@ Sources, runs and jobs are in the admin; source health and recent runs are at `/
 (staff only). See `docs/SOURCES.md` to add a site. Set `SCRAPER_USER_AGENT` to include a real contact
 URL before running against live sites.
 
+## The job feed
+
+`/app/` ranks the jobs that fit your job targets (tracks), best first. New jobs are matched by the
+worker (`run_huey`); each match is scored by the LLM within your monthly allowance (Settings → Usage).
+"Search now" refreshes sources and rescoring (once every 10 minutes). Changing your profile or a
+track re-runs the rules after about 30 seconds and marks older scores as out of date.
+
 ## Adding a job by hand
 
 `/app/jobs/add/` takes a link or a pasted description. Links are fetched through an SSRF-safe reader

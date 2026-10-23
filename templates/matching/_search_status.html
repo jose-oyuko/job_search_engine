@@ -1,0 +1,17 @@
+<div id="search-status" role="status" aria-live="polite" class="text-sm"
+     {% if progress and progress.active %}hx-get="{% url 'matching:search_status' %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  {% if error %}
+    <p class="text-amber-800">{{ error }}</p>
+  {% elif progress and progress.active %}
+    <p class="text-slate-700">
+      {% if progress.sources_total %}Checking {{ progress.sources_total }} source{{ progress.sources_total|pluralize }}&hellip; ({{ progress.sources_done }} done){% else %}Looking for new matches&hellip;{% endif %}
+      {% if progress.new_matches %} {{ progress.new_matches }} new match{{ progress.new_matches|pluralize:"es" }} so far.{% endif %}
+    </p>
+  {% elif progress %}
+    <p class="text-slate-700">
+      Search finished: {{ progress.new_matches }} new match{{ progress.new_matches|pluralize:"es" }}{% if progress.rescored %}, {{ progress.rescored }} scored{% endif %}.
+      {% if progress.blocked %}<span class="text-amber-800">Some matches stay unscored because your monthly scoring allowance is used up.</span>{% endif %}
+      <a href="{% url 'pages:dashboard' %}" class="underline">Refresh the list</a>
+    </p>
+  {% endif %}
+</div>

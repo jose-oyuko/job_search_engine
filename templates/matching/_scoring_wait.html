@@ -1,0 +1,5 @@
+<div id="scoring-wait" class="card mt-5 text-sm" role="status" aria-live="polite"
+     hx-get="{% url 'matching:score_status' match.pk %}" hx-trigger="every 2s" hx-swap="outerHTML">
+  <p class="font-medium">Working out how well this fits you&hellip;</p>
+  <p class="mt-1 text-slate-600">This page updates by itself in a few seconds.</p>
+</div>

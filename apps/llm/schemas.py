@@ -11,7 +11,7 @@ class SmokeResult(BaseModel):
     message: str
 
 
-# --- CV parsing (task `parse_cv`, spec §15.4) --------------------------------------------------
+# --- CV parsing (task `parse_cv`, spec §15.4) ------------------------------
 # Deliberately lenient (plain strings for dates and enums): the profile service normalises them,
 # so a slightly off value does not cost a repair retry.
 
@@ -91,7 +91,7 @@ class ParsedCV(BaseModel):
     skills: list[ParsedSkill] = []
 
 
-# --- job extraction (tasks `extract_job` and `extract_page`, spec §11.6) --------------------------
+# --- job extraction (tasks `extract_job`, `extract_page`; spec §11.6) --------------------------
 
 
 class JobExtraction(BaseModel):
@@ -123,3 +123,14 @@ class ExtractedPage(BaseModel):
     work_type: Literal["remote", "onsite", "hybrid", "unknown"] = "unknown"
     employment_type: str | None = None
     apply_url: str | None = None
+
+
+# --- match scoring (task `score_match`, spec §10.3) ------------------------------
+
+
+class MatchScore(BaseModel):
+    score: int  # 0-100
+    verdict: Literal["strong", "good", "weak", "poor"]
+    strengths: list[str]  # max 4, each <= 15 words, grounded in the profile
+    gaps: list[str]  # max 4, each <= 15 words
+    summary: str  # <= 25 words, plain language

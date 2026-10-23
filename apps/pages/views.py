@@ -59,13 +59,15 @@ def terms(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
-    """Placeholder shell; the job feed replaces it in Phase 6. New users go through the
+    """The job feed (apps.matching). New users go through the
     onboarding wizard first (only users who have a settings row, so staff-only accounts are
     not forced through it)."""
     settings_row = UserSettings.objects.for_user(request.user).first()
     if settings_row is not None and not settings_row.onboarding_completed:
         return redirect("profiles:onboarding_start")
-    return render(request, "pages/dashboard.html")
+    from apps.matching.views import render_feed
+
+    return render_feed(request)
 
 
 def permission_denied(

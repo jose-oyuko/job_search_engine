@@ -4,7 +4,7 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 
 ## Current phase
 
-**Phase 5 — Manual job input** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 6, once the owner says to proceed.
+**Phase 6 — Matching, scoring and the job feed** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 7, once the owner says to proceed.
 
 ## Phase status
 
@@ -15,8 +15,8 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 | 2 | LLM core layer and usage metering | ✅ Complete | 2026-10-22 |
 | 3 | Profile, tracks and CV import | ✅ Complete | 2026-10-22 |
 | 4 | Source framework, ExpertWoka, ingestion | ✅ Complete | 2026-10-22 |
-| 5 | Manual job input | 🟨 Done, awaiting owner approval | 2026-10-22 |
-| 6 | Matching, scoring and the job feed | ⬜ Not started | |
+| 5 | Manual job input | ✅ Complete | 2026-10-22 |
+| 6 | Matching, scoring and the job feed | 🟨 Done, awaiting owner approval | 2026-10-23 |
 | 7 | Application kit generation and documents | ⬜ Not started | |
 | 8 | Notifications: Telegram and email | ⬜ Not started | |
 | 9 | Application tracker | ⬜ Not started | |
@@ -155,4 +155,25 @@ Legend: ⬜ Not started · 🟨 In progress · ✅ Complete (approved by owner)
   - `blocked_sites` list is `BLOCKED_DOMAINS` in `apps/jobs/manual.py`.
   - Tests: DNS is faked by patching `apps.core.ssrf.system_resolver`; pages are served at the pinned
     IP URL (`https://93.184.216.34/...`) with respx.
+- Open questions: none.
+
+### Phase 6 — Matching, scoring and the job feed — 2026-10-23
+- Summary: `apps.matching` (rules, scoring, pipeline, feed, card actions, Search now), the job page
+  match panel and report form, wiring from extraction and manual input. Changes are uncommitted in
+  the working tree on `main` (owner commits).
+- Notes for next session:
+  - Hooks waiting for you: `apps/matching/hooks.py::after_score(match)` is where Phase 7 enqueues
+    kit generation (`auto_kit_threshold`) and Phase 8 the instant notification
+    (`instant_score_threshold`, waits up to 90 s for the kit). "Mark applied" only sets
+    `Match.status`; Phase 9 must also create the Application (see `matching/views.py::applied`).
+  - The job page (`templates/jobs/detail.html`) has no kit panel yet; Phase 7 adds it there.
+  - Scores are stale when `scored_profile_version != profile.version`; never store that flag.
+  - Anything that changes what the user wants must bump the profile version through
+    `profiles.services`, which schedules the debounced rematch.
+  - A track-less user gets no matches by design; the dashboard explains it.
+  - Tests: `tests/matching_helpers.py` (`make_user`, `make_job`), `MatchFactory`; scoring uses the
+    `fake_llm` fixture and `tests/fixtures/llm/score_match.json`. In tests `task.schedule(delay=...)`
+    only queues (it does not run), so rematch tests call `services.rematch_user` directly.
+  - The per-user "told once per month about the limit" notice from §10.3 belongs to Phase 8 (it
+    needs a notification channel); the on-screen badge is done.
 - Open questions: none.

@@ -1,0 +1,61 @@
+{% with m=card.match job=card.match.job %}
+<article id="match-{{ m.pk }}" class="card !p-4 sm:!p-5" aria-labelledby="match-title-{{ m.pk }}">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h3 id="match-title-{{ m.pk }}" class="text-base font-semibold leading-snug">
+        <a href="{% url 'jobs:detail' job.pk %}" class="hover:underline">{{ job.title }}</a>
+      </h3>
+      <p class="text-sm text-slate-600">{{ job.company }}{% if job.source %} <span class="text-slate-400">&middot; via {{ job.source.display_name }}</span>{% endif %}</p>
+    </div>
+    <div class="shrink-0 text-right">
+      {% if m.score is not None %}
+        <p class="text-2xl font-semibold leading-none {% if m.verdict == 'strong' %}text-green-700{% elif m.verdict == 'good' %}text-brand-700{% elif m.verdict == 'weak' %}text-amber-700{% else %}text-slate-500{% endif %}">{{ m.score }}</p>
+        <p class="text-xs text-slate-500">{{ m.get_verdict_display }}</p>
+      {% elif card.limit_reached %}
+        <span class="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">Score limit reached</span>
+      {% elif card.pending %}
+        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">Scoring&hellip;</span>
+      {% else %}
+        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">Not scored yet</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
+    {% if card.eligible is None %}<span class="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-700">Eligibility unclear</span>
+    {% elif card.eligible %}<span class="rounded-full bg-green-50 px-2 py-0.5 font-medium text-green-700">Open to you</span>
+    {% else %}<span class="rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700">Not open to your country</span>{% endif %}
+    {% if job.work_type != 'unknown' %}<span class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700">{{ job.get_work_type_display }}</span>{% endif %}
+    {% if job.pay_text %}<span class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700">{{ job.pay_text|truncatechars:40 }}</span>{% endif %}
+    {% if m.status == 'saved' %}<span class="rounded-full bg-brand-50 px-2 py-0.5 font-medium text-brand-700">Saved</span>{% endif %}
+    {% if m.status == 'new' or m.status == 'notified' %}<span class="rounded-full bg-brand-600 px-2 py-0.5 font-medium text-white">New</span>{% endif %}
+    {% if card.stale %}<span class="rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-800" title="Your profile changed since this was scored">Score may be out of date</span>{% endif %}
+    {% if card.flags %}<span class="rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-900" title="{{ card.flags|join:', ' }}">&#9888; Check carefully</span>{% endif %}
+    {% if job.status == 'expired' %}<span class="rounded-full bg-slate-200 px-2 py-0.5 font-medium text-slate-700">May have closed</span>{% endif %}
+    {% if not m.rule_pass %}<span class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-600">Outside your target</span>{% endif %}
+  </div>
+
+  {% if m.summary %}<p class="mt-2 text-sm text-slate-700">{{ m.summary }}</p>{% endif %}
+
+  <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+    <p class="text-xs text-slate-500">{{ job.first_seen_at|timesince }} ago</p>
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="{% url 'jobs:detail' job.pk %}" class="btn btn-secondary !min-h-9 !px-3">View</a>
+      {% if m.status == 'dismissed' or m.status == 'applied' %}
+        <button type="button" class="btn btn-secondary !min-h-9 !px-3" hx-post="{% url 'matching:restore' m.pk %}" hx-target="#match-{{ m.pk }}" hx-swap="outerHTML">Restore</button>
+      {% else %}
+        <button type="button" class="btn btn-secondary !min-h-9 !px-3" hx-post="{% url 'matching:save' m.pk %}" hx-target="#match-{{ m.pk }}" hx-swap="outerHTML" aria-pressed="{% if m.status == 'saved' %}true{% else %}false{% endif %}">{% if m.status == 'saved' %}Unsave{% else %}Save{% endif %}</button>
+        <button type="button" class="btn btn-secondary !min-h-9 !px-3" hx-post="{% url 'matching:applied' m.pk %}" hx-target="#match-{{ m.pk }}" hx-swap="outerHTML" hx-confirm="Mark this job as applied?">Mark applied</button>
+        <form hx-post="{% url 'matching:dismiss' m.pk %}" hx-target="#match-{{ m.pk }}" hx-swap="outerHTML" class="flex items-center gap-1">
+          {% csrf_token %}
+          <label class="sr-only" for="dismiss-{{ m.pk }}">Reason for dismissing</label>
+          <select id="dismiss-{{ m.pk }}" name="reason" class="input !min-h-9 !w-auto !py-1 text-sm">
+            {% for value, label in dismiss_form.fields.reason.choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+          </select>
+          <button type="submit" class="btn btn-secondary !min-h-9 !px-3 text-red-700">Dismiss</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endwith %}

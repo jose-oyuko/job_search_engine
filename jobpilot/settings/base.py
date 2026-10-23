@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "apps.profiles",
     "apps.sources",
     "apps.jobs",
+    "apps.matching",
     "apps.pages",
 ]
 

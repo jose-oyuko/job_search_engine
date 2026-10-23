@@ -8,6 +8,7 @@ Nothing here logs CV text, profile content or file names; logs carry record IDs 
 """
 
 import datetime
+import functools
 import logging
 import re
 from collections.abc import Iterable
@@ -60,10 +61,26 @@ def get_profile(user: User) -> Profile:
     return profile
 
 
+REMATCH_DELAY_SECONDS = 30
+
+
 def bump_version(profile: Profile) -> None:
-    """Atomic increment, so concurrent edits never lose a bump."""
+    """Atomic increment, so concurrent edits never lose a bump. Also schedules a re-match."""
     Profile.objects.filter(pk=profile.pk).update(version=F("version") + 1)
     profile.refresh_from_db(fields=["version"])
+    transaction.on_commit(functools.partial(_schedule_rematch, profile.user_id))
+
+
+def _schedule_rematch(user_id: int) -> None:
+    """Re-run matching for the user shortly after a change. Many edits in a row (an import, a
+    burst of bullet edits) share one run: the first schedules it, the rest find it pending, and it
+    reads the latest data when it fires."""
+    from django.core.cache import cache
+
+    from apps.matching.tasks import rematch_user_task
+
+    if cache.add(f"rematch_pending:{user_id}", True, REMATCH_DELAY_SECONDS):
+        rematch_user_task.schedule(args=(user_id,), delay=REMATCH_DELAY_SECONDS)
 
 
 def save_profile(user: User, profile: Profile) -> None:

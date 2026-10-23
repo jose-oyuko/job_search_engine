@@ -98,6 +98,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - 20 additions per user per day across both tabs; usage shows on Settings → Usage.
   - `apps/jobs/matching_hook.py`: a no-op until Phase 6 provides the matching service.
   - ADR 0013. No new dependencies.
+- Phase 6 — Matching, scoring and the job feed:
+  - `apps.matching`: `Match` model, a pure rule filter (eligibility, work type and location, pay,
+    exclusions, relevance) that records plain-words reasons, and LLM scoring (`MatchScore` schema,
+    `score_match` prompt v1) with verdicts derived from the score.
+  - Pipeline: `match_new_job` after extraction, `rematch_user` (debounced 30 s) on any profile or
+    track change, per-match scoring tasks, lazy refresh of stale or unscored scores, a "Rescore"
+    action, and "Score limit reached" with no model call when the allowance is used up.
+  - Dashboard feed at `/app/`: ranked by score, filters (track, verdict, status, work type,
+    company or title, my country only, new), HTMX "load more", cards with save, dismiss (with a
+    reason) and mark applied, and badges for eligibility, scam signals, expired jobs, stale scores
+    and the score limit.
+  - Job page: score, strengths and gaps, "why this job was shown", source and alternate links,
+    "Report this listing".
+  - "Search now": runs stale-enough sources and rescoring, polled progress, one use per 10 minutes.
+  - Phase 5 manual jobs are matched and scored for the user who added them.
+  - ADR 0014. No new dependencies.
 
 ### Fixed
 - `log_event` no longer raises when a field is named like a `LogRecord` attribute (`created`,
