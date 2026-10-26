@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "apps.jobs",
     "apps.matching",
     "apps.kits",
+    "apps.notifications",
     "apps.pages",
 ]
 
@@ -249,6 +250,9 @@ init_sentry(
 # Optional integrations: each disables itself when its variables are absent (checked in
 # apps.core.apps.CoreConfig.ready, which logs one WARNING per disabled feature).
 TELEGRAM_BOT_TOKEN = env.str("TELEGRAM_BOT_TOKEN", default="")
+TELEGRAM_BOT_USERNAME = env.str("TELEGRAM_BOT_USERNAME", default="")
+# ptb: the real bot (needs the token). fake: records messages in memory (tests).
+TELEGRAM_GATEWAY = env.str("TELEGRAM_GATEWAY", default="ptb")
 GOOGLE_CLIENT_ID = env.str("GOOGLE_CLIENT_ID", default="")
 GOOGLE_CLIENT_SECRET = env.str("GOOGLE_CLIENT_SECRET", default="")
 GOOGLE_ENABLED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)

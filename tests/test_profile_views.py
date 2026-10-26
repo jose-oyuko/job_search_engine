@@ -551,10 +551,10 @@ def test_wizard_requires_login() -> None:
 def test_full_manual_wizard_path(new_client) -> None:  # type: ignore[no-untyped-def]
     client, user = new_client
     cv_page = client.get("/welcome/cv/").content.decode()
-    assert "Step 1 of 4" in cv_page and "I will fill it in myself" in cv_page
+    assert "Step 1 of 5" in cv_page and "I will fill it in myself" in cv_page
 
     review = client.get("/welcome/review/").content.decode()  # no CV: manual basics
-    assert "Step 2 of 4" in review and 'name="headline"' in review
+    assert "Step 2 of 5" in review and 'name="headline"' in review
     assert (
         client.post("/welcome/review/", {"headline": "Data labeller"})["Location"]
         == "/welcome/target/"
@@ -580,9 +580,21 @@ def test_full_manual_wizard_path(new_client) -> None:  # type: ignore[no-untyped
     location = client.get("/welcome/location/").content.decode()
     assert "Africa/Nairobi" in location and 'value="KE" selected' in location
     response = client.post("/welcome/location/", {"country": "UG", "timezone": "Africa/Kampala"})
-    assert response["Location"] == "/welcome/done/"
+    assert response["Location"] == "/welcome/notifications/"
     settings_row = UserSettings.objects.get(user=user)
     assert (settings_row.country, settings_row.timezone) == ("UG", "Africa/Kampala")
+
+    alerts = client.get("/welcome/notifications/").content.decode()
+    assert (
+        "Step 5 of 5" in alerts and 'name="notify_mode"' in alerts and "Connect Telegram" in alerts
+    )
+    response = client.post(
+        "/welcome/notifications/",
+        {"notify_mode": "daily", "digest_time": "07:30", "notify_email": "on"},
+    )
+    assert response["Location"] == "/welcome/done/"
+    settings_row.refresh_from_db()
+    assert settings_row.notify_mode == "daily" and settings_row.digest_time.hour == 7
 
     done = client.get("/welcome/done/", follow=True)
     assert done.redirect_chain[-1][0] == "/app/" and "all set" in done.content.decode()
@@ -668,16 +680,16 @@ def test_new_steps_can_be_appended_and_the_wizard_adapts(
 ) -> None:  # type: ignore[no-untyped-def]
     from django.http import HttpResponse
 
-    extra = onboarding.Step("notifications", "Notifications", lambda r: HttpResponse("extra step"))
+    extra = onboarding.Step("alerts-extra", "Extra", lambda r: HttpResponse("extra step"))
     steps = [*onboarding.STEPS, extra]
     monkeypatch.setattr(onboarding, "STEPS", steps)
     monkeypatch.setattr(onboarding, "STEP_BY_SLUG", {s.slug: s for s in steps})
 
-    assert onboarding.next_slug("location") == "notifications"
-    assert onboarding.next_slug("notifications") == "done"
+    assert onboarding.next_slug("notifications") == "alerts-extra"
+    assert onboarding.next_slug("alerts-extra") == "done"
     client, _ = new_client
-    assert client.get("/welcome/notifications/").content == b"extra step"
-    assert "Step 4 of 5" in client.get("/welcome/location/").content.decode()
+    assert client.get("/welcome/alerts-extra/").content == b"extra step"
+    assert "Step 4 of 6" in client.get("/welcome/location/").content.decode()
 
 
 def test_signup_to_dashboard_happy_path_uses_the_wizard(django_capture_on_commit_callbacks) -> None:  # type: ignore[no-untyped-def]

@@ -11,6 +11,7 @@ from apps.llm.providers import _build, get_provider
 from apps.llm.providers.fake import FakeProvider
 from tests.kit_helpers import pdf_fallback  # noqa: F401  (fixture shared by the kit tests)
 from tests.logcapture import ListHandler
+from tests.notif_helpers import tg  # noqa: F401  (fixture shared by the notification tests)
 
 
 @pytest.fixture

@@ -1,0 +1,19 @@
+{# The Telegram panel (settings page and onboarding). Expects telegram_enabled, telegram_link, connect_url. #}
+<div class="rounded-lg border border-slate-200 p-4 text-sm" id="telegram-panel">
+  <h3 class="font-semibold">Telegram</h3>
+  {% if not telegram_enabled %}
+    <p class="mt-1 text-slate-600">Telegram alerts are not set up on this server yet.</p>
+  {% elif telegram_link %}
+    <p class="mt-1 text-slate-700">Connected{% if telegram_link.username %} as @{{ telegram_link.username }}{% endif %}.</p>
+    <form method="post" action="{% url 'notifications:disconnect' %}" class="mt-3">{% csrf_token %}<button type="submit" class="btn btn-secondary !min-h-9">Disconnect Telegram</button></form>
+  {% elif connect_url %}
+    <p class="mt-1 text-slate-700">Open the link below in Telegram and press Start. It works for 15 minutes.</p>
+    <p class="mt-3"><a href="{{ connect_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Open Telegram</a></p>
+    <p class="mt-2 break-all text-xs text-slate-500">{{ connect_url }}</p>
+    <p class="mt-2 text-xs text-slate-500">Once connected, reload this page.</p>
+  {% else %}
+    <p class="mt-1 text-slate-600">Get instant alerts and send yourself documents. Connecting is optional.</p>
+    {% url 'notifications:connect' as default_action %}
+    <form method="post" action="{% firstof connect_action default_action %}" class="mt-3">{% csrf_token %}{% if connect_field %}<input type="hidden" name="{{ connect_field }}" value="1">{% endif %}<button type="submit" class="btn btn-secondary">Connect Telegram</button></form>
+  {% endif %}
+</div>

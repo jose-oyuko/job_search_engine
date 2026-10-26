@@ -99,6 +99,23 @@ generate and the Word files work; use "Re-render documents" once Pango is instal
 the Word templates after editing `apps/kits/docx_templates.py`, run
 `uv run python manage.py build_doc_templates`.
 
+## Notifications and the Telegram bot
+
+Settings → Notifications picks how you hear about jobs: instant (matches at or above your instant
+score; everything else in one daily digest), hourly, daily or off, with optional quiet hours. Alerts
+go to Telegram and/or email. To use Telegram, create a bot with @BotFather and set
+`TELEGRAM_BOT_TOKEN` and `TELEGRAM_BOT_USERNAME` in `.env`, then run the bot next to the worker:
+
+```bash
+uv run python manage.py run_huey      # sends alerts and digests (dispatcher every 5 minutes)
+uv run python manage.py run_bot       # answers commands and button presses (long polling)
+```
+
+On the settings page press **Connect Telegram** and tap Start in the chat. Telegram only shows
+buttons that open links when `SITE_URL` is a public https address. Email goes through the SMTP
+settings in `.env` (use Mailpit locally to see the digests). Staff users who link Telegram also get
+notices about failing sources and new waitlist requests.
+
 ## Adding a job by hand
 
 `/app/jobs/add/` takes a link or a pasted description. Links are fetched through an SSRF-safe reader

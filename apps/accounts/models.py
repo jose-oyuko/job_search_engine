@@ -79,6 +79,10 @@ class UserSettings(TimeStampedModel):
     auto_kit_threshold = models.PositiveSmallIntegerField(default=85)
     notify_telegram = models.BooleanField(default=False)
     notify_email = models.BooleanField(default=True)
+    # Send the CV and cover letter PDFs as Telegram documents when a kit is ready (spec §13.1).
+    send_documents_telegram = models.BooleanField(default=True)
+    # What `/resume` restores after `/pause` (which sets `notify_mode` to off).
+    previous_notify_mode = models.CharField(max_length=10, blank=True)
     last_digest_sent_at = models.DateTimeField(null=True, blank=True)
     last_manual_search_at = models.DateTimeField(null=True, blank=True)
     share_anonymous_outcomes = models.BooleanField(default=False)

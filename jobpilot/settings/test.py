@@ -17,6 +17,8 @@ INSTALLED_APPS = [*INSTALLED_APPS, "tests.testapp"]
 HUEY = {**HUEY, "immediate": True}
 
 LLM_PROVIDER = "fake"
+TELEGRAM_GATEWAY = "fake"
+TELEGRAM_BOT_USERNAME = "jobpilot_test_bot"
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 PRIVATE_MEDIA_ROOT = Path(tempfile.mkdtemp(prefix="jobpilot-private-"))

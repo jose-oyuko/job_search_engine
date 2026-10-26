@@ -4,7 +4,7 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 
 ## Current phase
 
-**Phase 7 — Application kit generation and documents** (complete 2026-10-23, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 8, once the owner says to proceed.
+**Phase 8 — Notifications: Telegram and email** (complete 2026-10-26, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 9, once the owner says to proceed.
 
 ## Phase status
 
@@ -17,8 +17,8 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 | 4 | Source framework, ExpertWoka, ingestion | ✅ Complete | 2026-10-22 |
 | 5 | Manual job input | ✅ Complete | 2026-10-22 |
 | 6 | Matching, scoring and the job feed | ✅ Complete | 2026-10-23 |
-| 7 | Application kit generation and documents | 🟨 Done, awaiting owner approval | 2026-10-23 |
-| 8 | Notifications: Telegram and email | ⬜ Not started | |
+| 7 | Application kit generation and documents | ✅ Complete | 2026-10-23 |
+| 8 | Notifications: Telegram and email | 🟨 Done, awaiting owner approval | 2026-10-26 |
 | 9 | Application tracker | ⬜ Not started | |
 | 10 | Email job-alert ingestion | ⬜ Not started | |
 | 11 | Privacy, security hardening, polish | ⬜ Not started | |
@@ -209,3 +209,26 @@ Legend: ⬜ Not started · 🟨 In progress · ✅ Complete (approved by owner)
     prefixed `kit_*` where they could collide (`kit_stale`).
 - Open questions: owner to generate one kit for a real job with a real provider and review the tone
   (acceptance criterion); report any prompt adjustments back so prompts can move to v2.
+
+### Phase 8 — Notifications: Telegram and email — 2026-10-26
+- Summary: `apps.notifications` (models, gateway, signing, pure schedule, services, bot, dispatcher,
+  settings page, onboarding step 5), hooks from scoring, kits, sources and the waitlist. Changes are
+  uncommitted in the working tree on `main` (owner commits).
+- Notes for next session:
+  - All sends go through `services.create_notification` + `services.deliver` (dedupe key, claim,
+    retries). Add new kinds in `deliver`'s `_send`; keep the payload to IDs and render text at send time.
+  - Phase 9: `bot_services.handle_callback` ("Applied ✓") and the dashboard button only set
+    `Match.status`; create the Application there (TODOs in place) linked to
+    `kits.services.latest_ready_kit`. `/status` has a TODO for applications by stage. The follow-up
+    reminder (spec §13.5) should create `Notification(kind="followup_reminder", payload={"followup_text": ...})`
+    rows with keys like `followup:<application>:<date>`; `_send_text` already delivers such a payload
+    on Telegram only, so add email there if wanted.
+  - The bot (`run_bot`) and worker must both run; the bot is a separate process like the worker.
+  - Tests: `tg` fixture (FakeGateway, reset per test), `tests/notif_helpers.py` (`make_notif_user`,
+    `scored_match`), `TELEGRAM_GATEWAY=fake` in test settings. The real `PtbGateway` is tested against
+    a respx-mocked Bot API (needs a `getMe` mock too). `pdf_fallback` is still needed by tests that
+    build kits on a machine without Pango.
+  - Telegram URL buttons are omitted unless `SITE_URL` is public https (localhost is rejected).
+- Open questions: owner to create a bot with @BotFather, set `TELEGRAM_BOT_TOKEN` and
+  `TELEGRAM_BOT_USERNAME`, and try the flow end to end (the one acceptance item that needs the real
+  Telegram service).

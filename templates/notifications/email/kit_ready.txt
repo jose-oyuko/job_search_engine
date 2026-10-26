@@ -1,0 +1,3 @@
+Your application kit for {{ job_title }} at {{ company }} is ready.
+
+Open it here and download the CV and cover letter: {{ url }}

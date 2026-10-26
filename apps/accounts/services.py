@@ -5,6 +5,7 @@ addresses are credentials / personal data, so log lines carry record IDs only.
 """
 
 import datetime
+import functools
 import logging
 import smtplib
 
@@ -179,7 +180,7 @@ def submit_waitlist(*, name: str, email: str, reason: str) -> tuple[WaitlistEntr
     if existing is not None:
         return existing, False
     entry = WaitlistEntry.objects.create(name=name.strip(), email=email, reason=reason.strip())
-    # TODO(phase 8): notify the owner on Telegram.
+    transaction.on_commit(functools.partial(_notify_staff_waitlist, entry.pk))
     log_event(
         logger,
         logging.INFO,
@@ -188,6 +189,19 @@ def submit_waitlist(*, name: str, email: str, reason: str) -> tuple[WaitlistEntr
         waitlist_entry_id=entry.pk,
     )
     return entry, True
+
+
+def _notify_staff_waitlist(entry_id: int) -> None:
+    """Tell staff on Telegram about a new request. Never affects the form: errors are logged."""
+    try:
+        from apps.notifications import services as notification_services
+
+        notification_services.notify_new_waitlist_entry(entry_id)
+    except Exception:
+        log_event(
+            logger, logging.ERROR, "staff_notice_failed", "Staff notice could not be queued",
+            waitlist_entry_id=entry_id, exc_info=True,
+        )  # fmt: skip
 
 
 def approve_waitlist_entry(entry: WaitlistEntry, approved_by: User | None) -> tuple[Invite, bool]:

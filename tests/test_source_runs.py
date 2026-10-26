@@ -509,3 +509,21 @@ def test_test_source_reports_problems_without_crashing(
     out = StringIO()
     call_command("test_source", "expertwoka", "--dry-run", stdout=out)
     assert "0 job(s) parsed" in out.getvalue()
+
+
+def test_a_source_that_goes_failing_notifies_linked_staff_once(
+    ew: Source, router: respx.MockRouter, tg, django_capture_on_commit_callbacks
+) -> None:
+    from apps.notifications.models import Notification
+    from tests.notif_helpers import make_notif_user
+
+    staff = make_notif_user(chat_id="42", full_name="Owner")
+    staff.is_staff = True
+    staff.save()
+    mock_listing(router, "<html></html>")
+    with django_capture_on_commit_callbacks(execute=True):
+        for _ in range(4):  # failing from the third run on; the fourth must not repeat the notice
+            go(ew)
+    notices = Notification.objects.filter(user=staff, kind="source_health")
+    assert notices.count() == 1 and notices.get().status == "sent"
+    assert "ExpertWoka is failing" in tg.messages[0]["text"]

@@ -1,0 +1,9 @@
+{{ count }} new match{{ count|pluralize:"es" }} on {{ site_name }}
+
+{% for item in items %}{{ item.line }}
+{{ item.url }}
+
+{% endfor %}{% if more %}...and {{ more }} more on your dashboard.
+{% endif %}Your dashboard: {{ dashboard_url }}
+
+You can change how often you get these in your notification settings: {{ settings_url }}

@@ -128,6 +128,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Prompts `generate_cv`, `generate_cover_letter`, `generate_interview`, `generate_screening`
     (v1); schemas `CVData`, `InterviewPrep`, `ScreeningSet`; kit generation limited to 10 an hour.
   - ADR 0015. New dependencies: `weasyprint`, `docxtpl` (PDF needs Pango; GTK on Windows).
+- Phase 8 — Notifications: Telegram and email:
+  - `apps.notifications`: `TelegramLink`, `TelegramLinkToken`, `Notification` (one row per user,
+    channel and dedupe key, so nothing is sent twice); `TelegramGateway` with a python-telegram-bot
+    implementation and a fake for tests.
+  - Instant alerts after scoring (waiting up to 90 s for an auto-kit), quiet hours, hourly and daily
+    digests in the user's time zone, a 5-minute `notifications.dispatch` task, retries, and "kit
+    ready" messages (Telegram documents, email link).
+  - The bot (`manage.py run_bot`): `/start <token>` linking, `/status`, `/search`, `/digest`,
+    `/pause`, `/resume`, `/help`; inline buttons Open, Kit, Applied and Not interested with signed
+    callback data checked against the chat's owner; invite-only reply for unknown chats.
+  - Settings → Notifications (mode, digest time, quiet hours, thresholds, channels, connect and
+    disconnect Telegram) and onboarding step 5; branded HTML and text digest and kit emails.
+  - Staff Telegram notices for failing sources and new waitlist requests.
+  - `UserSettings.send_documents_telegram`, `previous_notify_mode`. ADR 0016.
+  - New dependency: `python-telegram-bot`.
 
 ### Fixed
 - `log_event` no longer raises when a field is named like a `LogRecord` attribute (`created`,

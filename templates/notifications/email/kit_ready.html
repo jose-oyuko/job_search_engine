@@ -1,0 +1,6 @@
+{% extends "email/base.html" %}
+{% block body %}
+  <h1 style="font-size:20px;margin:0 0 12px 0;">Your application kit is ready</h1>
+  <p>The CV and cover letter for <strong>{{ job_title }}</strong> at {{ company }} are ready to download.</p>
+  {% include "email/_button.html" with url=url label="Open your kit" %}
+{% endblock %}

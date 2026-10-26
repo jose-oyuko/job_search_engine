@@ -1,0 +1,18 @@
+{% extends "email/base.html" %}
+{% block body %}
+  <h1 style="font-size:20px;margin:0 0 12px 0;">{{ count }} new match{{ count|pluralize:"es" }}</h1>
+  {% for item in items %}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #e2e8f0;">
+      <tr>
+        <td style="padding:12px 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;">
+          <a href="{{ item.url }}" style="color:#4338ca;font-weight:bold;text-decoration:none;">{{ item.title }}</a>
+          <span style="color:#475569;"> &mdash; {{ item.company }}</span><br>
+          <span style="font-size:13px;color:#64748b;">{% if item.score is not None %}Score {{ item.score }}{% else %}Not scored yet{% endif %}{% if item.pay %} &middot; {{ item.pay }}{% endif %}</span>
+        </td>
+      </tr>
+    </table>
+  {% endfor %}
+  {% if more %}<p style="color:#475569;">&hellip;and {{ more }} more on your dashboard.</p>{% endif %}
+  {% include "email/_button.html" with url=dashboard_url label="Open your dashboard" %}
+  <p style="font-size:13px;color:#64748b;">You can change how often you get these in your <a href="{{ settings_url }}" style="color:#4338ca;">notification settings</a>.</p>
+{% endblock %}

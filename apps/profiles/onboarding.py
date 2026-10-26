@@ -8,6 +8,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -134,11 +135,38 @@ def _location_step(request: HttpRequest) -> HttpResponse:
     return _render(request, step, "profiles/onboarding/location.html", {"form": form})
 
 
+def _notifications_step(request: HttpRequest) -> HttpResponse:
+    # Imported here: the notifications app depends on profiles, not the other way round.
+    from apps.notifications import services as notification_services
+    from apps.notifications.exceptions import TelegramUnavailable
+    from apps.notifications.forms import OnboardingNotificationsForm
+    from apps.notifications.views import telegram_context
+
+    step = STEP_BY_SLUG["notifications"]
+    user = _user(request)
+    row, _ = UserSettings.objects.get_or_create(user=user)
+    new_link = ""
+    if request.method == "POST" and request.POST.get("connect_telegram"):
+        try:
+            new_link = notification_services.link_url(notification_services.create_link_token(user))
+        except TelegramUnavailable as exc:
+            messages.error(request, exc.message)
+        form = OnboardingNotificationsForm(instance=row)
+    else:
+        form = OnboardingNotificationsForm(request.POST or None, instance=row)
+        if request.method == "POST" and form.is_valid():
+            form.save()
+            return redirect(step_url(next_slug("notifications")))
+    context = {"form": form, **telegram_context(user, new_link=new_link)}
+    return _render(request, step, "profiles/onboarding/notifications.html", context)
+
+
 STEPS: list[Step] = [
     Step("cv", "Upload your CV", _cv_step),
     Step("review", "Review your profile", _review_step),
     Step("target", "Choose your target", _target_step),
     Step("location", "Location and timezone", _location_step),
+    Step("notifications", "Notifications", _notifications_step),
 ]
 STEP_BY_SLUG: dict[str, Step] = {s.slug: s for s in STEPS}
 

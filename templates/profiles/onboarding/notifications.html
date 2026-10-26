@@ -1,0 +1,10 @@
+{% extends "onboarding_base.html" %}
+{% block step_content %}
+  <p class="text-sm text-slate-600">Choose how you want to hear about new jobs. You can change this any time in Settings.</p>
+  <div class="card mt-4">{% include "notifications/_telegram.html" with connect_action=request.path connect_field="connect_telegram" %}</div>
+  <form method="post" class="card mt-4 space-y-4" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_fields.html" %}
+    <button type="submit" class="btn btn-primary">Save and continue</button>
+  </form>
+{% endblock %}

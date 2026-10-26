@@ -209,8 +209,25 @@ def _finish(
             source=source.name, old=previous_health, new=source.health,
             consecutive_failures=source.consecutive_failures,
         )  # fmt: skip
-        # TODO(phase 8): send a `source_health` notification to staff users on Telegram.
+        if source.health == Source.Health.FAILING:
+            transaction.on_commit(
+                functools.partial(_notify_staff_failing, source.pk, timezone.now().date())
+            )
     _enqueue_extraction(result)
+
+
+def _notify_staff_failing(source_id: int, when: datetime.date) -> None:
+    """Tell staff on Telegram that a source is failing. A notice that cannot be sent never
+    affects the run, so errors are logged and swallowed."""
+    try:
+        from apps.notifications import services as notification_services
+
+        notification_services.notify_source_health(source_id, Source.Health.FAILING, when)
+    except Exception:
+        log_event(
+            logger, logging.ERROR, "staff_notice_failed", "Staff notice could not be queued",
+            source_id=source_id, exc_info=True,
+        )  # fmt: skip
 
 
 def _enqueue_extraction(result: IngestResult) -> None:
