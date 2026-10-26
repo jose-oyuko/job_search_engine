@@ -12,6 +12,7 @@ from django_ratelimit.decorators import ratelimit
 
 from apps.accounts.models import User, UserSettings
 from apps.core.logging import log_event
+from apps.kits.views import panel_context as kit_panel_context
 from apps.llm.exceptions import QuotaExceeded
 from apps.matching import services as matching_services
 from apps.matching.forms import DismissForm
@@ -144,6 +145,7 @@ def detail(request: HttpRequest, pk: int) -> HttpResponse:
         "report_form": ReportForm(),
         "dismiss_form": DismissForm(),
         "alternate_urls": [u for u in job.alternate_urls if isinstance(u, str)][:5],
+        **kit_panel_context(user, job),
     }
     log_event(logger, logging.DEBUG, "job_viewed", "Job viewed", job_id=job.pk)
     return render(request, "jobs/detail.html", context)

@@ -4,7 +4,7 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 
 ## Current phase
 
-**Phase 6 — Matching, scoring and the job feed** (complete, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 7, once the owner says to proceed.
+**Phase 7 — Application kit generation and documents** (complete 2026-10-23, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 8, once the owner says to proceed.
 
 ## Phase status
 
@@ -16,8 +16,8 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 | 3 | Profile, tracks and CV import | ✅ Complete | 2026-10-22 |
 | 4 | Source framework, ExpertWoka, ingestion | ✅ Complete | 2026-10-22 |
 | 5 | Manual job input | ✅ Complete | 2026-10-22 |
-| 6 | Matching, scoring and the job feed | 🟨 Done, awaiting owner approval | 2026-10-23 |
-| 7 | Application kit generation and documents | ⬜ Not started | |
+| 6 | Matching, scoring and the job feed | ✅ Complete | 2026-10-23 |
+| 7 | Application kit generation and documents | 🟨 Done, awaiting owner approval | 2026-10-23 |
 | 8 | Notifications: Telegram and email | ⬜ Not started | |
 | 9 | Application tracker | ⬜ Not started | |
 | 10 | Email job-alert ingestion | ⬜ Not started | |
@@ -177,3 +177,35 @@ Legend: ⬜ Not started · 🟨 In progress · ✅ Complete (approved by owner)
   - The per-user "told once per month about the limit" notice from §10.3 belongs to Phase 8 (it
     needs a notification channel); the on-screen badge is done.
 - Open questions: none.
+
+### Phase 7 — Application kit generation and documents — 2026-10-23
+- Summary: `apps.kits` (Kit model, pipeline, fabrication validator, style rules, PDF and Word
+  rendering, kit panel on the job page, edit and re-render, versions, ownership-checked downloads,
+  auto-kit hook). Changes are uncommitted in the working tree on `main` (owner commits).
+- Notes for next session:
+  - Hooks waiting for you: `apps/kits/hooks.py::after_generate(kit)` is where Phase 8 sends the
+    "kit ready" message (Telegram documents, email link) and releases an instant match alert that
+    was waiting for the kit (`after_score` in `apps/matching/hooks.py` starts the auto-kit; the
+    notification part is still a TODO there). Use `kits.services.latest_ready_kit(user, job)` and
+    `Kit.status` to see whether a kit exists or is in progress (queued/generating) for the 90 s wait.
+  - Phase 9: when applying, link `Kit` via `kits.services.latest_ready_kit` (editable).
+  - Documents never carry model-written facts: `documents.build_cv_context` reads names, companies,
+    dates and institutions from the database by ID. Keep it that way.
+  - Add a prompt change as a new `version` in `apps/llm/prompts/generate_*.md`; the style rules are in
+    the prompts and `apps/kits/style.py` (keep both in sync).
+  - PDF needs Pango. Docker image has it. On this Windows machine WeasyPrint cannot load (no GTK), so
+    the 5 `@requires_pdf` tests skip and other kit tests use a stand-in PDF (`pdf_fallback` fixture).
+    The real PDF tests were run in a Linux container instead:
+    `docker run --rm -v "$(pwd -W):/src:ro" python:3.12-slim-bookworm bash -c '<apt install
+    libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libfontconfig1 shared-mime-info rsync; pip
+    install uv; rsync /src to /app excluding .venv; UV_PROJECT_ENVIRONMENT=/venv uv sync --locked;
+    pytest tests/test_kits_*.py --no-cov>'`. To run them natively install the GTK runtime
+    (`winget install tschoonj.GTKForWindows`, new terminal).
+  - After editing `apps/kits/docx_templates.py` run `python manage.py build_doc_templates`; a test
+    fails if the committed `.docx` files drift.
+  - With `LLM_PROVIDER=fake` a kit falls back to the profile's own wording (the fake CV has no real
+    IDs); use a real provider to judge tone.
+  - Context-key gotcha: the job page merges the match panel and kit panel contexts; kit keys are
+    prefixed `kit_*` where they could collide (`kit_stale`).
+- Open questions: owner to generate one kit for a real job with a real provider and review the tone
+  (acceptance criterion); report any prompt adjustments back so prompts can move to v2.

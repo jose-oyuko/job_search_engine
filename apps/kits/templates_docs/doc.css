@@ -1,0 +1,23 @@
+@font-face { font-family: "Source Sans 3"; font-weight: 400; font-style: normal; src: url("fonts/source-sans-3-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Sans 3"; font-weight: 400; font-style: italic; src: url("fonts/source-sans-3-latin-400-italic.woff2") format("woff2"); }
+@font-face { font-family: "Source Sans 3"; font-weight: 600; font-style: normal; src: url("fonts/source-sans-3-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Sans 3"; font-weight: 700; font-style: normal; src: url("fonts/source-sans-3-latin-700-normal.woff2") format("woff2"); }
+
+@page { size: A4; margin: 16mm 18mm; }
+
+html { font-family: "Source Sans 3", "Helvetica Neue", Arial, sans-serif; font-size: 10.5pt; line-height: 1.38; color: #1a1a1a; }
+body { margin: 0; }
+h1 { font-size: 20pt; font-weight: 700; margin: 0; line-height: 1.15; }
+.headline { font-size: 11.5pt; font-weight: 600; margin: 2pt 0 0; }
+.contact { margin: 3pt 0 0; font-size: 10pt; color: #333; }
+h2 { font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin: 13pt 0 4pt; padding-bottom: 2pt; border-bottom: 0.75pt solid #999; break-after: avoid; }
+p { margin: 0 0 5pt; }
+.entry { margin: 0 0 7pt; break-inside: avoid-page; }
+.entry-head { font-weight: 600; margin: 0; }
+.entry-meta { margin: 0 0 2pt; color: #444; font-size: 10pt; }
+ul { margin: 2pt 0 0; padding-left: 14pt; }
+li { margin: 0 0 2pt; }
+
+.letter p { margin: 0 0 9pt; }
+.letter .date { margin-top: 18pt; }
+.letter .closing { margin-top: 14pt; }

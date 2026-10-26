@@ -20,6 +20,7 @@ urlpatterns = [
     path("", include("apps.sources.urls")),
     path("", include("apps.jobs.urls")),
     path("", include("apps.matching.urls")),
+    path("", include("apps.kits.urls")),
     path("", include("apps.pages.urls")),
 ]
 

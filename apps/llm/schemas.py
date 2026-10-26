@@ -134,3 +134,55 @@ class MatchScore(BaseModel):
     strengths: list[str]  # max 4, each <= 15 words, grounded in the profile
     gaps: list[str]  # max 4, each <= 15 words
     summary: str  # <= 25 words, plain language
+
+
+# --- application kits (tasks `generate_cv`, `generate_interview`, `generate_screening`; §12) ---
+# Deliberately free of length constraints: `apps/kits/validation.py` checks and repairs them, so a
+# long bullet costs a targeted retry instead of a failed call.
+
+
+class CVBullet(BaseModel):
+    text: str  # <= 30 words
+    source_ids: list[str]  # e.g. ["BUL-88"] or ["EXP-12", "SKL-40"]; must not be empty
+
+
+class CVExperience(BaseModel):
+    experience_id: str  # "EXP-12"
+    bullets: list[CVBullet]  # 1-5
+
+
+class CVProject(BaseModel):
+    project_id: str  # "PRJ-3"
+    bullets: list[CVBullet]  # 1-3
+
+
+class CVData(BaseModel):
+    headline: str
+    summary: str  # 2-3 sentences, <= 60 words
+    summary_source_ids: list[str]
+    skills: list[str]  # skill IDs ("SKL-40"), most relevant first, max 14
+    experiences: list[CVExperience]
+    projects: list[CVProject] = []
+    education_ids: list[str] = []
+    certification_ids: list[str] = []
+
+
+class InterviewItem(BaseModel):
+    category: Literal["technical", "behavioural", "role", "company", "gap"]
+    question: str
+    why_they_ask: str  # <= 20 words
+    answer_outline: list[str]  # 2-4 points drawn from the profile
+    source_ids: list[str] = []
+
+
+class InterviewPrep(BaseModel):
+    items: list[InterviewItem]  # 10-15
+
+
+class ScreeningAnswer(BaseModel):
+    question: str
+    answer: str
+
+
+class ScreeningSet(BaseModel):
+    answers: list[ScreeningAnswer]

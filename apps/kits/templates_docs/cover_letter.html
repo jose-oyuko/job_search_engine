@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ name }} - Cover letter</title>
+<link rel="stylesheet" href="doc.css">
+</head>
+<body class="letter">
+<h1>{{ name }}</h1>
+{% if contact_line %}<p class="contact">{{ contact_line }}</p>{% endif %}
+<p class="date">{{ date }}</p>
+<p>{{ salutation }}</p>
+{% for paragraph in paragraphs %}<p>{{ paragraph }}</p>
+{% endfor %}
+<p class="closing">{{ closing }}<br>{{ name }}</p>
+</body>
+</html>

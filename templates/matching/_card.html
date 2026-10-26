@@ -41,6 +41,7 @@
     <p class="text-xs text-slate-500">{{ job.first_seen_at|timesince }} ago</p>
     <div class="flex flex-wrap items-center gap-2">
       <a href="{% url 'jobs:detail' job.pk %}" class="btn btn-secondary !min-h-9 !px-3">View</a>
+      <a href="{% url 'jobs:detail' job.pk %}#kit" class="btn btn-secondary !min-h-9 !px-3">Kit</a>
       {% if m.status == 'dismissed' or m.status == 'applied' %}
         <button type="button" class="btn btn-secondary !min-h-9 !px-3" hx-post="{% url 'matching:restore' m.pk %}" hx-target="#match-{{ m.pk }}" hx-swap="outerHTML">Restore</button>
       {% else %}

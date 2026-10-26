@@ -84,6 +84,21 @@ worker (`run_huey`); each match is scored by the LLM within your monthly allowan
 "Search now" refreshes sources and rescoring (once every 10 minutes). Changing your profile or a
 track re-runs the rules after about 30 seconds and marks older scores as out of date.
 
+## Application kits
+
+On a job page, "Generate kit" writes a CV and cover letter for that job from your profile, plus
+interview questions and screening answers. Every CV claim cites a profile item and is checked: an
+invented number, a skill you do not have, or a banned phrase is removed, never published. Download
+PDF or Word files, edit the text and rebuild without using any AI allowance, or regenerate with an
+instruction (a new version; old ones stay). Jobs scoring at or above your auto-kit threshold get a
+kit automatically. The worker (`run_huey`) does the writing.
+
+PDFs need WeasyPrint's Pango libraries. The Docker image has them. On Windows install the GTK
+runtime (`winget install tschoonj.GTKForWindows`), then open a new terminal. Without it, kits still
+generate and the Word files work; use "Re-render documents" once Pango is installed. To regenerate
+the Word templates after editing `apps/kits/docx_templates.py`, run
+`uv run python manage.py build_doc_templates`.
+
 ## Adding a job by hand
 
 `/app/jobs/add/` takes a link or a pasted description. Links are fetched through an SSRF-safe reader

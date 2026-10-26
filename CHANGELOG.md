@@ -114,6 +114,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - "Search now": runs stale-enough sources and rescoring, polled progress, one use per 10 minutes.
   - Phase 5 manual jobs are matched and scored for the user who added them.
   - ADR 0014. No new dependencies.
+- Phase 7 — Application kit generation and documents:
+  - `apps.kits`: `Kit` model (versions per job, private files), the generation pipeline (CV, cover
+    letter, interview prep, screening answers, render) as a Huey task with polled progress, and a
+    kit panel on the job page (CV preview, cover letter, interview prep, screening answers, copy
+    buttons, version dropdown, regenerate with an instruction, edit text and rebuild files).
+  - The fabrication validator: IDs, sources, numbers, job skills the user lacks, banned phrases,
+    em dashes and length limits; one retry, then repair or drop, with a `validation_report`.
+  - PDF (WeasyPrint, bundled Source Sans 3) and Word (docxtpl) documents, A4, single column,
+    standard headings; company, titles and dates always come from the database; ownership-checked
+    downloads named `<First>_<Last>_CV_<Company>.pdf`.
+  - Auto-kit after scoring at the user's `auto_kit_threshold`; `build_doc_templates` command.
+  - Prompts `generate_cv`, `generate_cover_letter`, `generate_interview`, `generate_screening`
+    (v1); schemas `CVData`, `InterviewPrep`, `ScreeningSet`; kit generation limited to 10 an hour.
+  - ADR 0015. New dependencies: `weasyprint`, `docxtpl` (PDF needs Pango; GTK on Windows).
 
 ### Fixed
 - `log_event` no longer raises when a field is named like a `LogRecord` attribute (`created`,

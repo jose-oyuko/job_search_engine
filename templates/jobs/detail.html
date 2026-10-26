@@ -1,4 +1,5 @@
 {% extends "app_base.html" %}
+{% load static %}
 {% block title %}{{ job.title }} &mdash; {{ SITE_NAME }}{% endblock %}
 {% block content %}
   <p class="flex flex-wrap gap-4 text-sm"><a href="{% url 'pages:dashboard' %}" class="text-slate-600 underline">&larr; Your jobs</a><a href="{% url 'jobs:add' %}" class="text-slate-600 underline">Add another job</a></p>
@@ -71,6 +72,9 @@
       </div>
     </section>
   {% endif %}
+
+  <div id="kit">{% include "kits/_panel.html" %}</div>
+  <script src="{% static 'js/kit.js' %}" defer></script>
 
   <dl class="card mt-5 grid gap-3 text-sm sm:grid-cols-3">
     <div><dt class="text-slate-500">Pay</dt><dd class="font-medium">{{ job.pay_text|default:"Not stated" }}</dd></div>

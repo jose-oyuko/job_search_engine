@@ -12,6 +12,10 @@
   --color-brand-700: #4338ca;
 }
 
+[x-cloak] {
+  display: none !important;
+}
+
 /* Small component layer so allauth's generic element templates and our pages share one look. */
 @layer components {
   .btn {

@@ -1,0 +1,14 @@
+{
+  "items": [
+    {"category": "technical", "question": "How do you troubleshoot a user who cannot sign in?", "why_they_ask": "They want to see a calm, step-by-step approach.", "answer_outline": ["Check the account and network first", "Reproduce the problem", "Explain what you changed"], "source_ids": []},
+    {"category": "technical", "question": "Describe how you handle a queue of urgent tickets.", "why_they_ask": "Prioritising under pressure is part of the job.", "answer_outline": ["Sort by impact", "Tell users what to expect", "Escalate when stuck"], "source_ids": []},
+    {"category": "behavioural", "question": "Tell me about a time you helped a frustrated customer.", "why_they_ask": "Support work needs patience.", "answer_outline": ["Listen first", "Fix the cause", "Follow up"], "source_ids": []},
+    {"category": "behavioural", "question": "Tell me about a mistake you made at work.", "why_they_ask": "They want honesty and learning.", "answer_outline": ["Own it", "Say what you changed afterwards"], "source_ids": []},
+    {"category": "role", "question": "What does a good day in this role look like to you?", "why_they_ask": "They check your expectations of the job.", "answer_outline": ["Solved problems", "Clear notes for the team"], "source_ids": []},
+    {"category": "role", "question": "How would you manage working remotely across time zones?", "why_they_ask": "The role is remote.", "answer_outline": ["Written updates", "Clear working hours"], "source_ids": []},
+    {"category": "company", "question": "Why do you want to work here?", "why_they_ask": "They look for a real reason.", "answer_outline": ["Name something specific from the posting", "Link it to your experience"], "source_ids": []},
+    {"category": "company", "question": "What do you know about our product?", "why_they_ask": "They check preparation.", "answer_outline": ["Read the website first", "Ask a good question back"], "source_ids": []},
+    {"category": "gap", "question": "The posting asks for a tool you have not used. How would you get up to speed?", "why_they_ask": "They want to see how you learn.", "answer_outline": ["Be honest that you have not used it", "Name a similar tool you know", "Say how you would learn it"], "source_ids": []},
+    {"category": "gap", "question": "You have less experience than the posting suggests. Why should we hire you?", "why_they_ask": "They test confidence and honesty.", "answer_outline": ["Acknowledge the gap", "Point to related results", "Show willingness to learn"], "source_ids": []}
+  ]
+}

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ name }} - CV</title>
+<link rel="stylesheet" href="doc.css">
+</head>
+<body>
+<h1>{{ name }}</h1>
+{% if headline %}<p class="headline">{{ headline }}</p>{% endif %}
+{% if contact_line %}<p class="contact">{{ contact_line }}</p>{% endif %}
+
+{% if summary %}
+<h2>Summary</h2>
+<p>{{ summary }}</p>
+{% endif %}
+
+{% if skills %}
+<h2>Skills</h2>
+<p>{{ skills_line }}</p>
+{% endif %}
+
+{% if experiences %}
+<h2>Experience</h2>
+{% for exp in experiences %}
+<div class="entry">
+<p class="entry-head">{{ exp.title }}, {{ exp.company }}</p>
+<p class="entry-meta">{{ exp.dates }}{% if exp.location %}{% if exp.dates %} | {% endif %}{{ exp.location }}{% endif %}</p>
+{% if exp.bullets %}<ul>{% for bullet in exp.bullets %}<li>{{ bullet }}</li>{% endfor %}</ul>{% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if projects %}
+<h2>Projects</h2>
+{% for project in projects %}
+<div class="entry">
+<p class="entry-head">{{ project.name }}{% if project.role %}, {{ project.role }}{% endif %}</p>
+{% if project.url %}<p class="entry-meta">{{ project.url }}</p>{% endif %}
+{% if project.bullets %}<ul>{% for bullet in project.bullets %}<li>{{ bullet }}</li>{% endfor %}</ul>{% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if education %}
+<h2>Education</h2>
+{% for edu in education %}
+<div class="entry">
+<p class="entry-head">{{ edu.title }}{% if edu.institution %}, {{ edu.institution }}{% endif %}</p>
+{% if edu.dates or edu.grade %}<p class="entry-meta">{{ edu.dates }}{% if edu.grade %}{% if edu.dates %} | {% endif %}{{ edu.grade }}{% endif %}</p>{% endif %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if certifications %}
+<h2>Certifications</h2>
+<ul>{% for cert in certifications %}<li>{{ cert.name }}{% if cert.issuer %}, {{ cert.issuer }}{% endif %}{% if cert.issued %} ({{ cert.issued }}){% endif %}{% if cert.in_progress %} (in progress){% endif %}</li>{% endfor %}</ul>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,184 @@
+{# The application kit panel (spec §12.7). Swapped as a whole by HTMX; polls itself while a kit is being prepared. #}
+<section id="kit-panel" class="card mt-5" aria-labelledby="kit-heading"
+  {% if kit and kit.in_progress %}hx-get="{% url 'kits:panel' job.pk %}?kit={{ kit.pk }}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h2 id="kit-heading" class="text-lg font-semibold">Application kit</h2>
+    {% if kits|length > 1 %}
+      <div class="flex items-center gap-2 text-sm">
+        <label for="kit-version" class="text-slate-600">Version</label>
+        <select id="kit-version" class="input !min-h-9 !w-auto !py-1" name="kit"
+                hx-get="{% url 'kits:panel' job.pk %}" hx-target="#kit-panel" hx-swap="outerHTML">
+          {% for k in kits %}<option value="{{ k.pk }}" {% if k.pk == kit.pk %}selected{% endif %}>v{{ k.version }}{% if k.status != 'ready' %} ({{ k.get_status_display|lower }}){% endif %}{% if k.instruction %} &middot; {{ k.instruction|truncatechars:30 }}{% endif %}</option>{% endfor %}
+        </select>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if notice %}<p class="mt-3 rounded-lg bg-brand-50 px-3 py-2 text-sm text-slate-800" role="status">{{ notice }}</p>{% endif %}
+
+  {% if not kit %}
+    <p class="mt-2 text-sm text-slate-600">A CV and cover letter written for this job from your profile, plus likely interview questions and answers to common screening questions. Nothing is added that is not in your profile.</p>
+    {% if not has_profile %}
+      <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">Add your experience or skills to <a href="{% url 'profiles:profile' %}" class="underline">your profile</a> first.</p>
+    {% elif exhausted %}
+      <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">Kit limit reached. You have used this month's application kits.</p>
+    {% else %}
+      <form method="post" action="{% url 'kits:generate' job.pk %}" hx-post="{% url 'kits:generate' job.pk %}" hx-target="#kit-panel" hx-swap="outerHTML" class="mt-4">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Generate kit</button>
+      </form>
+    {% endif %}
+
+  {% elif kit.in_progress %}
+    <div class="mt-3 text-sm" role="status" aria-live="polite">
+      <p class="font-medium">{{ kit.progress|default:"Getting started…" }}</p>
+      <p class="mt-1 text-slate-600">This usually takes under a minute. This section updates by itself.</p>
+    </div>
+
+  {% elif kit.status == 'failed' %}
+    <p class="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">{{ kit.error|default:"The kit could not be prepared." }}</p>
+    {% if has_profile and not exhausted %}
+      <form method="post" action="{% url 'kits:generate' job.pk %}" hx-post="{% url 'kits:generate' job.pk %}" hx-target="#kit-panel" hx-swap="outerHTML" class="mt-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Try again</button>
+      </form>
+    {% elif exhausted %}
+      <p class="mt-3 text-sm text-amber-900">Kit limit reached. You have used this month's application kits.</p>
+    {% endif %}
+
+  {% else %}
+    {# ready #}
+    {% if kit_stale %}
+      <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900" role="status">Your profile changed after this kit was made. Regenerate it to include the changes.</p>
+    {% endif %}
+    {% if kit.error %}
+      <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900" role="alert">{{ kit.error }}</p>
+    {% endif %}
+
+    <p class="mt-3 text-sm {% if report.passed %}text-green-700{% else %}text-amber-800{% endif %}">
+      {% if report.passed %}&#10003; All claims trace to your profile{% else %}Some claims could not be checked and were removed:{% endif %}
+    </p>
+    {% if issues %}
+      <ul class="mt-1 list-disc space-y-0.5 pl-5 text-sm text-slate-600">{% for issue in issues %}<li>{{ issue.field }}: {{ issue.message }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if notes %}<ul class="mt-1 list-disc space-y-0.5 pl-5 text-sm text-slate-600">{% for note in notes %}<li>{{ note }}</li>{% endfor %}</ul>{% endif %}
+    {% if edit_warnings %}
+      <p class="mt-2 text-sm font-medium text-amber-800">Style notes on your edits</p>
+      <ul class="mt-1 list-disc space-y-0.5 pl-5 text-sm text-slate-600">{% for w in edit_warnings %}<li>{{ w }}</li>{% endfor %}</ul>
+    {% endif %}
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      {% for d in downloads %}
+        {% if d.available %}<a href="{{ d.url }}" class="btn btn-secondary !min-h-9">{{ d.label }}</a>{% endif %}
+      {% endfor %}
+      {% if kit.error %}
+        <form method="post" action="{% url 'kits:rerender' kit.pk %}" hx-post="{% url 'kits:rerender' kit.pk %}" hx-target="#kit-panel" hx-swap="outerHTML">{% csrf_token %}<button type="submit" class="btn btn-secondary !min-h-9">Re-render documents</button></form>
+      {% endif %}
+    </div>
+
+    <div x-data="{ tab: 'cv' }" class="mt-5">
+      <div class="flex flex-wrap gap-1 border-b border-slate-200 text-sm" role="tablist">
+        <button type="button" role="tab" @click="tab = 'cv'" :aria-selected="tab === 'cv'" :class="tab === 'cv' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-600'" class="-mb-px border-b-2 px-3 py-2 font-medium">CV</button>
+        <button type="button" role="tab" @click="tab = 'letter'" :aria-selected="tab === 'letter'" :class="tab === 'letter' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-600'" class="-mb-px border-b-2 px-3 py-2 font-medium">Cover letter</button>
+        <button type="button" role="tab" @click="tab = 'interview'" :aria-selected="tab === 'interview'" :class="tab === 'interview' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-600'" class="-mb-px border-b-2 px-3 py-2 font-medium">Interview prep</button>
+        <button type="button" role="tab" @click="tab = 'screening'" :aria-selected="tab === 'screening'" :class="tab === 'screening' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-600'" class="-mb-px border-b-2 px-3 py-2 font-medium">Screening answers</button>
+      </div>
+
+      {# --- CV preview and edit --- #}
+      <div x-show="tab === 'cv'" role="tabpanel" class="mt-4">
+        {% if cv %}
+          <div class="rounded-lg border border-slate-200 p-4 text-sm">
+            <p class="text-lg font-semibold">{{ cv.name }}</p>
+            {% if cv.headline %}<p class="font-medium text-slate-800">{{ cv.headline }}</p>{% endif %}
+            {% if cv.contact_line %}<p class="text-slate-600">{{ cv.contact_line }}</p>{% endif %}
+            {% if cv.summary %}<h3 class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Summary</h3><p class="mt-1">{{ cv.summary }}</p>{% endif %}
+            {% if cv.skills %}<h3 class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Skills</h3><p class="mt-1">{{ cv.skills_line }}</p>{% endif %}
+            {% if cv.experiences %}<h3 class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Experience</h3>
+              {% for exp in cv.experiences %}
+                <div class="mt-2"><p class="font-medium">{{ exp.title }}, {{ exp.company }}</p><p class="text-slate-500">{{ exp.dates }}{% if exp.location %} | {{ exp.location }}{% endif %}</p>
+                <ul class="mt-1 list-disc space-y-1 pl-5">{% for bullet in exp.bullets %}<li>{{ bullet }}</li>{% endfor %}</ul></div>
+              {% endfor %}
+            {% endif %}
+            {% if cv.projects %}<h3 class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Projects</h3>
+              {% for project in cv.projects %}
+                <div class="mt-2"><p class="font-medium">{{ project.name }}{% if project.role %}, {{ project.role }}{% endif %}</p>
+                <ul class="mt-1 list-disc space-y-1 pl-5">{% for bullet in project.bullets %}<li>{{ bullet }}</li>{% endfor %}</ul></div>
+              {% endfor %}
+            {% endif %}
+            {% if cv.education %}<h3 class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Education</h3>
+              {% for edu in cv.education %}<p class="mt-1">{{ edu.title }}{% if edu.institution %}, {{ edu.institution }}{% endif %}{% if edu.dates %} <span class="text-slate-500">({{ edu.dates }})</span>{% endif %}</p>{% endfor %}
+            {% endif %}
+            {% if cv.certifications %}<h3 class="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Certifications</h3>
+              <ul class="mt-1 list-disc pl-5">{% for cert in cv.certifications %}<li>{{ cert.name }}{% if cert.issuer %}, {{ cert.issuer }}{% endif %}{% if cert.in_progress %} (in progress){% endif %}</li>{% endfor %}</ul>
+            {% endif %}
+          </div>
+
+          <details class="mt-4 text-sm">
+            <summary class="cursor-pointer font-medium text-slate-700">Edit the text</summary>
+            <form method="post" action="{% url 'kits:edit' kit.pk %}" hx-post="{% url 'kits:edit' kit.pk %}" hx-target="#kit-panel" hx-swap="outerHTML" class="mt-3 space-y-3">
+              {% csrf_token %}
+              <div><label class="label" for="kit-headline">Headline</label><input id="kit-headline" name="headline" value="{{ cv.headline }}" maxlength="160" class="input"></div>
+              <div><label class="label" for="kit-summary">Summary</label><textarea id="kit-summary" name="summary" rows="3" class="input">{{ cv.summary }}</textarea></div>
+              {% for exp in cv.experiences %}
+                <fieldset><legend class="label">{{ exp.title }}, {{ exp.company }}</legend>
+                  {% for bullet in exp.bullets %}<label class="sr-only" for="kit-exp-{{ exp.index }}-{{ forloop.counter0 }}">Bullet {{ forloop.counter }}</label><textarea id="kit-exp-{{ exp.index }}-{{ forloop.counter0 }}" name="exp-{{ exp.index }}-{{ forloop.counter0 }}" rows="2" class="input mb-2">{{ bullet }}</textarea>{% endfor %}
+                </fieldset>
+              {% endfor %}
+              {% for project in cv.projects %}
+                <fieldset><legend class="label">{{ project.name }}</legend>
+                  {% for bullet in project.bullets %}<label class="sr-only" for="kit-prj-{{ project.index }}-{{ forloop.counter0 }}">Bullet {{ forloop.counter }}</label><textarea id="kit-prj-{{ project.index }}-{{ forloop.counter0 }}" name="prj-{{ project.index }}-{{ forloop.counter0 }}" rows="2" class="input mb-2">{{ bullet }}</textarea>{% endfor %}
+                </fieldset>
+              {% endfor %}
+              <div><label class="label" for="kit-letter-edit">Cover letter</label><textarea id="kit-letter-edit" name="cover_letter" rows="10" class="input">{{ kit.cover_letter_text }}</textarea></div>
+              <p class="text-slate-500">Clear a bullet to remove it. Saving rebuilds your documents without using any AI allowance.</p>
+              <button type="submit" class="btn btn-primary">Save and rebuild documents</button>
+            </form>
+          </details>
+        {% else %}
+          <p class="text-sm text-slate-600">The CV preview is not available for this version.</p>
+        {% endif %}
+      </div>
+
+      {# --- Cover letter --- #}
+      <div x-show="tab === 'letter'" x-cloak role="tabpanel" class="mt-4">
+        <div id="kit-letter" class="rounded-lg border border-slate-200 p-4 text-sm leading-relaxed">
+          {% for paragraph in letter_paragraphs %}<p class="{% if not forloop.first %}mt-3{% endif %}">{{ paragraph }}</p>{% empty %}<p class="text-slate-500">No cover letter.</p>{% endfor %}
+        </div>
+        <button type="button" data-copy="#kit-letter" class="btn btn-secondary mt-3 !min-h-9">Copy cover letter</button>
+      </div>
+
+      {# --- Interview prep --- #}
+      <div x-show="tab === 'interview'" x-cloak role="tabpanel" class="mt-4 space-y-3">
+        {% for item in kit.interview_qa %}
+          <div class="rounded-lg border border-slate-200 p-4 text-sm">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ item.category }}</p>
+            <p class="mt-1 font-medium">{{ item.question }}</p>
+            {% if item.why_they_ask %}<p class="mt-1 text-slate-500">Why they ask: {{ item.why_they_ask }}</p>{% endif %}
+            {% if item.answer_outline %}<ul class="mt-2 list-disc space-y-1 pl-5 text-slate-700">{% for point in item.answer_outline %}<li>{{ point }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+        {% empty %}<p class="text-sm text-slate-600">No interview questions were prepared for this version.</p>{% endfor %}
+      </div>
+
+      {# --- Screening answers --- #}
+      <div x-show="tab === 'screening'" x-cloak role="tabpanel" class="mt-4 space-y-3">
+        {% for item in kit.screening_answers %}
+          <div class="rounded-lg border border-slate-200 p-4 text-sm">
+            <p class="font-medium">{{ item.question }}</p>
+            <p id="kit-answer-{{ forloop.counter }}" class="mt-1 text-slate-700">{{ item.answer }}</p>
+            <button type="button" data-copy="#kit-answer-{{ forloop.counter }}" class="btn btn-secondary mt-2 !min-h-9">Copy answer</button>
+          </div>
+        {% empty %}<p class="text-sm text-slate-600">No screening answers were prepared for this version.</p>{% endfor %}
+      </div>
+    </div>
+
+    <form method="post" action="{% url 'kits:generate' job.pk %}" hx-post="{% url 'kits:generate' job.pk %}" hx-target="#kit-panel" hx-swap="outerHTML" class="mt-6 border-t border-slate-100 pt-4">
+      {% csrf_token %}
+      <label class="label" for="kit-instruction">Regenerate with an instruction</label>
+      <div class="flex flex-wrap gap-2">
+        <input id="kit-instruction" name="instruction" maxlength="300" placeholder="Shorter, more technical, emphasise IT support" class="input min-w-0 flex-1">
+        <button type="submit" class="btn btn-secondary" {% if exhausted %}disabled{% endif %}>Regenerate</button>
+      </div>
+      {% if exhausted %}<p class="mt-2 text-sm text-amber-900">Kit limit reached. You have used this month's application kits.</p>{% else %}<p class="mt-1 text-xs text-slate-500">Makes a new version. Older versions stay available above.</p>{% endif %}
+    </form>
+  {% endif %}
+</section>
