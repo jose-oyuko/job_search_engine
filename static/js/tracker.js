@@ -10,6 +10,13 @@
         group: "applications",
         animation: 120,
         ghostClass: "opacity-50",
+        // On a phone a finger drag also scrolls the page: press and hold briefly to pick a card
+        // up. The mouse on a PC stays instant. The stage dropdown never starts a drag.
+        delay: 200,
+        delayOnTouchOnly: true,
+        touchStartThreshold: 5,
+        filter: "select, option, a",
+        preventOnFilter: false,
         onEnd: function (event) {
           var to = event.to.dataset.stage;
           if (event.from === event.to) return;

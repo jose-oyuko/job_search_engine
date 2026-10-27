@@ -445,3 +445,14 @@ def test_the_admin_shows_no_notes(two, admin_client) -> None:  # type: ignore[no
     page = admin_client.get(f"/admin/tracker/application/{application.pk}/change/").content.decode()
     assert "very private note" not in page and "notes" not in page.split("<form")[1]
     assert UserFactory and b
+
+
+def test_the_board_stacks_on_phones_and_runs_sideways_on_larger_screens(me) -> None:  # type: ignore[no-untyped-def]
+    client, user, job = me
+    seed(user, job)
+    html = client.get("/app/tracker/").content.decode()
+    assert "{#" not in html and "{%" not in html  # no template comment leaks into the page
+    assert "flex flex-col" in html and "md:flex-row" in html  # vertical by default, row from md
+    assert "md:overflow-x-auto" in html and 'class="mt-4 overflow-x-auto' not in html
+    script = (__import__("pathlib").Path("static/js/tracker.js")).read_text(encoding="utf-8")
+    assert "delayOnTouchOnly: true" in script  # press-and-hold on touch, instant with a mouse

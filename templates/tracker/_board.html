@@ -1,8 +1,11 @@
-{# The whole board. Swapped by HTMX after a move, so it carries its own id. #}
-<div id="board" class="mt-4 overflow-x-auto pb-4" data-board>
-  <div class="flex gap-3 md:min-w-max">
+{% comment %}
+  The whole board. Swapped by HTMX after a move, so it carries its own id.
+  Phones: stages stacked top to bottom (drag up and down). md and up: a row (drag sideways).
+{% endcomment %}
+<div id="board" class="mt-4 pb-4 md:overflow-x-auto" data-board>
+  <div class="flex flex-col gap-4 md:min-w-max md:flex-row md:gap-3">
     {% for column in columns %}
-      <section class="w-full shrink-0 rounded-xl bg-slate-100 p-2 md:w-60" aria-labelledby="col-{{ column.stage }}">
+      <section class="w-full rounded-xl bg-slate-100 p-3 md:w-60 md:shrink-0 md:p-2" aria-labelledby="col-{{ column.stage }}">
         <h2 id="col-{{ column.stage }}" class="flex items-center justify-between px-1 py-1 text-sm font-semibold text-slate-700">{{ column.label }} <span class="rounded-full bg-white px-2 text-xs text-slate-500">{{ column.applications|length }}</span></h2>
         <ul class="stage-list mt-1 min-h-12 space-y-2" data-stage="{{ column.stage }}">
           {% for app in column.applications %}{% include "tracker/_card.html" %}{% endfor %}
