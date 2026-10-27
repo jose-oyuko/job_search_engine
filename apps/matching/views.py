@@ -18,6 +18,7 @@ from apps.core.tenancy import get_owned_or_404
 from apps.jobs.eligibility import is_eligible
 from apps.jobs.scam import FLAG_LABELS
 from apps.profiles.models import Profile, Track
+from apps.tracker import services as tracker_services
 
 from . import services
 from .exceptions import NotOwner, SearchTooSoon
@@ -183,10 +184,10 @@ def dismiss(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 @require_POST
 def applied(request: HttpRequest, pk: int) -> HttpResponse:
-    """Mark applied. TODO(phase 9): this will also create the Application in the tracker."""
+    """Mark applied: creates the tracker Application (once) and marks the match applied."""
     user = _user(request)
     match = get_owned_or_404(Match, user, pk=pk)
-    services.set_status(user, match, Match.Status.APPLIED)
+    tracker_services.apply_to_job(user, match.job, match=match)
     return HttpResponse("") if _is_htmx(request) else _back(request)
 
 

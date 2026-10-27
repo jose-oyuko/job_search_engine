@@ -1,0 +1,3 @@
+{{ message }}
+
+Open the application: {{ url }}

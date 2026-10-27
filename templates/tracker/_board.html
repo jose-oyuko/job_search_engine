@@ -1,0 +1,13 @@
+{# The whole board. Swapped by HTMX after a move, so it carries its own id. #}
+<div id="board" class="mt-4 overflow-x-auto pb-4" data-board>
+  <div class="flex gap-3 md:min-w-max">
+    {% for column in columns %}
+      <section class="w-full shrink-0 rounded-xl bg-slate-100 p-2 md:w-60" aria-labelledby="col-{{ column.stage }}">
+        <h2 id="col-{{ column.stage }}" class="flex items-center justify-between px-1 py-1 text-sm font-semibold text-slate-700">{{ column.label }} <span class="rounded-full bg-white px-2 text-xs text-slate-500">{{ column.applications|length }}</span></h2>
+        <ul class="stage-list mt-1 min-h-12 space-y-2" data-stage="{{ column.stage }}">
+          {% for app in column.applications %}{% include "tracker/_card.html" %}{% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+  </div>
+</div>

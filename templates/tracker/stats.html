@@ -1,0 +1,38 @@
+{% extends "app_base.html" %}
+{% block title %}Tracker stats &mdash; {{ SITE_NAME }}{% endblock %}
+{% block content %}
+  <p class="text-sm"><a href="{% url 'tracker:board' %}" class="text-slate-600 underline">&larr; Tracker</a></p>
+  <h1 class="mt-3 text-2xl font-semibold tracking-tight">Your application stats</h1>
+
+  <dl class="mt-4 grid gap-3 sm:grid-cols-3">
+    <div class="card !p-4"><dt class="text-sm text-slate-500">Applications sent</dt><dd class="text-3xl font-semibold">{{ stats.applied }}</dd></div>
+    <div class="card !p-4"><dt class="text-sm text-slate-500">Response rate</dt><dd class="text-3xl font-semibold">{{ stats.response_rate }}%</dd><dd class="text-xs text-slate-500">{{ stats.responded }} of {{ stats.applied }} got an answer</dd></div>
+    <div class="card !p-4"><dt class="text-sm text-slate-500">Median days to a response</dt><dd class="text-3xl font-semibold">{% if stats.median_days_to_response is None %}&ndash;{% else %}{{ stats.median_days_to_response }}{% endif %}</dd></div>
+  </dl>
+
+  <section class="card mt-5" aria-labelledby="by-stage">
+    <h2 id="by-stage" class="text-lg font-semibold">By stage</h2>
+    <table class="mt-3 w-full text-sm"><tbody>
+      {% for stage, count in stats.counts.items %}
+        <tr class="border-t border-slate-100"><th scope="row" class="py-2 text-left font-normal text-slate-700">{{ stage|capfirst }}</th><td class="w-16 py-2 text-right font-medium">{{ count }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+  </section>
+
+  {% for title, rows in groups %}
+    <section class="card mt-5" aria-label="{{ title }}">
+      <h2 class="text-lg font-semibold">{{ title }}</h2>
+      {% if rows %}
+        <table class="mt-3 w-full text-sm">
+          <thead><tr class="text-left text-slate-500"><th scope="col" class="py-1 font-normal">&nbsp;</th><th scope="col" class="py-1 text-right font-normal">Applied</th><th scope="col" class="py-1 text-right font-normal">Answered</th><th scope="col" class="w-40 py-1 pl-3 font-normal">Rate</th></tr></thead>
+          <tbody>
+            {% for row in rows %}
+              <tr class="border-t border-slate-100"><th scope="row" class="py-2 text-left font-normal">{{ row.label }}</th><td class="py-2 text-right">{{ row.applied }}</td><td class="py-2 text-right">{{ row.responded }}</td>
+                <td class="py-2 pl-3"><div class="flex items-center gap-2"><div class="h-2 flex-1 rounded-full bg-slate-100" role="img" aria-label="{{ row.rate }} percent"><div class="h-2 rounded-full bg-brand-600" style="width: {{ row.rate }}%"></div></div><span class="w-9 text-right">{{ row.rate }}%</span></div></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}<p class="mt-2 text-sm text-slate-600">Nothing to show yet.</p>{% endif %}
+    </section>
+  {% endfor %}
+{% endblock %}

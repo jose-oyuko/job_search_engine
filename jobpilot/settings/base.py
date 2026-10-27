@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "apps.matching",
     "apps.kits",
     "apps.notifications",
+    "apps.tracker",
     "apps.pages",
 ]
 

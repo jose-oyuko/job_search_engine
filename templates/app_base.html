@@ -13,7 +13,8 @@
       <nav class="flex-1 space-y-1 px-3 py-2 text-sm" aria-label="Main">
         <a href="{{ jobs_url }}" {% if request.path == jobs_url %}aria-current="page"{% endif %}
            class="flex items-center rounded-lg px-3 py-2 font-medium {% if request.path == jobs_url %}bg-brand-50 text-brand-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Jobs</a>
-        <span class="flex items-center justify-between rounded-lg px-3 py-2 text-slate-400">Tracker <span class="text-xs">soon</span></span>
+        <a href="{% url 'tracker:board' %}" {% if '/app/tracker/' in request.path %}aria-current="page"{% endif %}
+           class="flex items-center rounded-lg px-3 py-2 font-medium {% if '/app/tracker/' in request.path %}bg-brand-50 text-brand-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Tracker</a>
         <a href="{% url 'jobs:add' %}" {% if '/app/jobs/' in request.path %}aria-current="page"{% endif %}
            class="flex items-center rounded-lg px-3 py-2 font-medium {% if '/app/jobs/' in request.path %}bg-brand-50 text-brand-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Add a job</a>
         <a href="{% url 'profiles:profile' %}" {% if '/app/profile/' in request.path %}aria-current="page"{% endif %}
@@ -49,7 +50,7 @@
     {# Mobile bottom nav #}
     <nav class="fixed inset-x-0 bottom-0 z-10 grid grid-cols-5 border-t border-slate-200 bg-white text-xs md:hidden" aria-label="Main">
       <a href="{{ jobs_url }}" class="flex min-h-14 flex-col items-center justify-center gap-0.5 {% if request.path == jobs_url %}font-semibold text-brand-700{% else %}text-slate-600{% endif %}">Jobs</a>
-      <span class="flex min-h-14 flex-col items-center justify-center text-slate-300">Tracker</span>
+      <a href="{% url 'tracker:board' %}" class="flex min-h-14 flex-col items-center justify-center {% if '/app/tracker/' in request.path %}font-semibold text-brand-700{% else %}text-slate-600{% endif %}">Tracker</a>
       <a href="{% url 'jobs:add' %}" class="flex min-h-14 flex-col items-center justify-center {% if '/app/jobs/' in request.path %}font-semibold text-brand-700{% else %}text-slate-600{% endif %}">Add</a>
       <a href="{% url 'profiles:profile' %}" class="flex min-h-14 flex-col items-center justify-center {% if '/app/profile/' in request.path %}font-semibold text-brand-700{% else %}text-slate-600{% endif %}">Profile</a>
       <a href="{{ settings_url }}" class="flex min-h-14 flex-col items-center justify-center {% if '/app/settings/' in request.path %}font-semibold text-brand-700{% else %}text-slate-600{% endif %}">Settings</a>

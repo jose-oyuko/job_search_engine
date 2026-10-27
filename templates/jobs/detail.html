@@ -23,6 +23,12 @@
     </div>
   {% endif %}
 
+  {% if application %}
+    <p class="mt-4 rounded-lg bg-brand-50 px-4 py-3 text-sm text-slate-800">In your tracker: <strong>{{ application.get_stage_display }}</strong> &middot; <a href="{% url 'tracker:detail' application.pk %}" class="text-brand-700 underline">Open the application</a></p>
+  {% elif not match %}
+    <form method="post" action="{% url 'tracker:apply_job' job.pk %}" class="mt-4">{% csrf_token %}<button type="submit" class="btn btn-secondary">Mark applied</button></form>
+  {% endif %}
+
   {% if match %}
     <section class="card mt-5" aria-labelledby="fit-heading">
       <div class="flex flex-wrap items-start justify-between gap-3">

@@ -143,6 +143,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Staff Telegram notices for failing sources and new waitlist requests.
   - `UserSettings.send_documents_telegram`, `previous_notify_mode`. ADR 0016.
   - New dependency: `python-telegram-bot`.
+- Phase 9 — Application tracker:
+  - `apps.tracker`: `Application` (one per user and job), `ApplicationEvent` (append-only stage
+    history) and `Interview`; `apply_to_job`, `add_manual_application`, `change_stage`, kit choice,
+    notes and interview services.
+  - "Mark applied" from the feed, the job page and the Telegram "Applied ✓" button now creates
+    exactly one application linked to the latest ready kit, with a follow-up set 7 days out.
+  - Kanban board at `/app/tracker/` with SortableJS drag and drop and a stage dropdown on each card
+    for phones; application detail (kit and downloads, notes, timeline, interviews you can add,
+    edit and remove); a form for applications made outside the system.
+  - Daily follow-up reminders (07:00 UTC) through Telegram and email, rescheduled a week later, and
+    one "consider marking it ghosted" suggestion after 21 quiet days.
+  - Stats at `/app/tracker/stats/`: counts by stage, response rate (overall, by source, by job
+    target, with or without a kit) and median days to a first response.
+  - Telegram `/status` shows applications by stage; a "Tracker" link in the app navigation.
+  - ADR 0017. Vendored SortableJS 1.15.2.
 
 ### Fixed
 - `log_event` no longer raises when a field is named like a `LogRecord` attribute (`created`,

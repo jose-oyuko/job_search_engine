@@ -14,6 +14,7 @@ from apps.matching import services as matching_services
 from apps.matching.exceptions import SearchTooSoon
 from apps.matching.models import Match
 from apps.matching.tasks import search_now_task
+from apps.tracker import services as tracker_services
 
 from . import schedule, services, signing
 from .exceptions import ChatAlreadyLinked, LinkTokenInvalid
@@ -126,7 +127,9 @@ def _status(gateway: TelegramGateway, chat_id: str, user: User) -> None:
     if best is not None:
         lines.append(f"Best score today: {best}")
     lines.append(f"Alerts: {row.get_notify_mode_display().lower()}")
-    # TODO(phase 9): applications by stage.
+    counts = {k: v for k, v in tracker_services.stage_counts(user).items() if v}
+    if counts:
+        lines.append("Applications: " + ", ".join(f"{v} {k}" for k, v in counts.items()))
     gateway.send_message(chat_id, "\n".join(lines))
 
 
@@ -203,8 +206,7 @@ def handle_callback(chat_id: str, callback_id: str, data: str) -> None:
         return
 
     if action == "applied":
-        matching_services.set_status(user, match, Match.Status.APPLIED)
-        # TODO(phase 9): also create the Application linked to the latest kit.
+        tracker_services.apply_to_job(user, match.job, match=match)
         gateway.answer_callback(callback_id, "Marked as applied ✓")
     elif action == "dismiss":
         matching_services.set_status(

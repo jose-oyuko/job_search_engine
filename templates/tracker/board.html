@@ -1,0 +1,19 @@
+{% extends "app_base.html" %}
+{% load static %}
+{% block title %}Tracker &mdash; {{ SITE_NAME }}{% endblock %}
+{% block content_wrapper %}
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-2xl font-semibold tracking-tight">Tracker</h1>
+    <div class="flex gap-2">
+      <a href="{% url 'tracker:stats' %}" class="btn btn-secondary">Stats</a>
+      <a href="{% url 'tracker:add' %}" class="btn btn-primary">Add an application</a>
+    </div>
+  </div>
+  {% if not total %}
+    <p class="mt-4 rounded-lg bg-white p-4 text-sm text-slate-600 shadow-sm">Nothing here yet. Press &ldquo;Mark applied&rdquo; on a job, or add an application you made elsewhere.</p>
+  {% endif %}
+  <p class="mt-2 hidden text-xs text-slate-500 md:block">Drag a card to another column to change its stage.</p>
+  {% include "tracker/_board.html" %}
+  <script src="{% static 'js/Sortable.min.js' %}" defer></script>
+  <script src="{% static 'js/tracker.js' %}" defer></script>
+{% endblock %}

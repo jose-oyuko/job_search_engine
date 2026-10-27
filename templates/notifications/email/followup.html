@@ -1,0 +1,6 @@
+{% extends "email/base.html" %}
+{% block body %}
+  <h1 style="font-size:20px;margin:0 0 12px 0;">Application reminder</h1>
+  <p>{{ message }}</p>
+  {% include "email/_button.html" with url=url label="Open the application" %}
+{% endblock %}

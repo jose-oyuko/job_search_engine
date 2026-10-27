@@ -116,6 +116,17 @@ buttons that open links when `SITE_URL` is a public https address. Email goes th
 settings in `.env` (use Mailpit locally to see the digests). Staff users who link Telegram also get
 notices about failing sources and new waitlist requests.
 
+## The application tracker
+
+`/app/tracker/` is a board with a column for each stage (saved, applied, screening, interview,
+offer, hired, rejected, withdrawn, ghosted). Drag a card to change its stage, or use the dropdown on
+the card on a phone. "Mark applied" on the dashboard, a job page or Telegram adds the job to the
+board and links your latest kit; "Add an application" covers jobs found elsewhere. Open a card to
+write notes, switch the kit version, add interviews and see the timeline. Each application gets a
+reminder a week after you applied (then weekly) through your alert channels, and a suggestion to mark
+it ghosted after three weeks of silence. `/app/tracker/stats/` shows your response rates. Reminders
+need the worker (`run_huey`).
+
 ## Adding a job by hand
 
 `/app/jobs/add/` takes a link or a pasted description. Links are fetched through an SSRF-safe reader

@@ -1,0 +1,97 @@
+{% extends "app_base.html" %}
+{% load tz %}
+{% block title %}{{ job.title }} &mdash; Tracker &mdash; {{ SITE_NAME }}{% endblock %}
+{% block content %}{% timezone user_tz %}
+  <p class="text-sm"><a href="{% url 'tracker:board' %}" class="text-slate-600 underline">&larr; Tracker</a></p>
+  <header class="mt-3">
+    <p class="text-xs font-medium uppercase tracking-wide text-brand-700">{{ application.get_stage_display }}</p>
+    <h1 class="mt-1 text-2xl font-semibold tracking-tight">{{ job.title }}</h1>
+    <p class="text-slate-600">{{ job.company }}</p>
+    <p class="mt-2 text-sm"><a href="{% url 'jobs:detail' job.pk %}" class="text-brand-700 underline">Open the job</a>{% if job.url %} &middot; <a href="{{ job.url }}" target="_blank" rel="noopener noreferrer nofollow" class="text-brand-700 underline">Original posting</a>{% endif %}</p>
+  </header>
+
+  {% if ghost_hint %}
+    <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status">
+      <p>No reply for 3 weeks. It may be worth marking this application as ghosted.</p>
+      <form method="post" action="{% url 'tracker:stage' application.pk %}" class="mt-2">{% csrf_token %}<input type="hidden" name="stage" value="ghosted"><button type="submit" class="btn btn-secondary !min-h-9">Mark as ghosted</button></form>
+    </div>
+  {% endif %}
+
+  <section class="card mt-5" aria-labelledby="stage-heading">
+    <h2 id="stage-heading" class="text-lg font-semibold">Stage</h2>
+    <form method="post" action="{% url 'tracker:stage' application.pk %}" class="mt-3 flex flex-wrap items-end gap-2">
+      {% csrf_token %}
+      <div><label class="label" for="detail-stage">Move to</label>
+        <select id="detail-stage" name="stage" class="input !w-auto">{% for value, label in stage_choices %}<option value="{{ value }}" {% if value == application.stage %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div class="min-w-0 flex-1"><label class="label" for="detail-note">Note (optional)</label><input id="detail-note" name="note" maxlength="500" class="input"></div>
+      <button type="submit" class="btn btn-primary">Change stage</button>
+    </form>
+    <dl class="mt-4 grid gap-2 text-sm sm:grid-cols-3">
+      <div><dt class="text-slate-500">Applied</dt><dd class="font-medium">{{ application.applied_at|date:"j M Y"|default:"Not yet" }}</dd></div>
+      <div><dt class="text-slate-500">Last change</dt><dd class="font-medium">{{ application.last_stage_change_at|date:"j M Y" }}</dd></div>
+      <div><dt class="text-slate-500">Next follow-up</dt><dd class="font-medium">{{ application.next_followup_at|date:"j M Y"|default:"None" }}</dd></div>
+    </dl>
+  </section>
+
+  <section class="card mt-5" aria-labelledby="kit-heading">
+    <h2 id="kit-heading" class="text-lg font-semibold">Kit used</h2>
+    {% if application.kit %}
+      <p class="mt-2 text-sm text-slate-700">Version {{ application.kit.version }}</p>
+      <div class="mt-2 flex flex-wrap gap-2">{% for d in downloads %}<a href="{% url 'kits:download' application.kit.pk d.key %}" class="btn btn-secondary !min-h-9">{{ d.label }}</a>{% endfor %}</div>
+    {% else %}
+      <p class="mt-2 text-sm text-slate-600">No kit is linked. {% if not kits %}<a href="{% url 'jobs:detail' job.pk %}#kit" class="text-brand-700 underline">Generate one</a>.{% endif %}</p>
+    {% endif %}
+    {% if kits %}
+      <form method="post" action="{% url 'tracker:kit' application.pk %}" class="mt-3 flex flex-wrap items-end gap-2">
+        {% csrf_token %}
+        <div><label class="label" for="kit-choice">Which version did you send?</label>
+          <select id="kit-choice" name="kit" class="input !w-auto"><option value="">No kit</option>{% for k in kits %}<option value="{{ k.pk }}" {% if k.pk == application.kit_id %}selected{% endif %}>Version {{ k.version }}</option>{% endfor %}</select></div>
+        <button type="submit" class="btn btn-secondary">Save</button>
+      </form>
+    {% endif %}
+  </section>
+
+  <section class="card mt-5" aria-labelledby="notes-heading">
+    <h2 id="notes-heading" class="text-lg font-semibold">Notes</h2>
+    <form method="post" action="{% url 'tracker:details' application.pk %}" class="mt-3 space-y-3" novalidate>
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" with form=details_form %}
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+  </section>
+
+  <section class="card mt-5" aria-labelledby="interviews-heading">
+    <h2 id="interviews-heading" class="text-lg font-semibold">Interviews</h2>
+    {% for interview in interviews %}
+      <details class="mt-3 rounded-lg border border-slate-200 p-3 text-sm">
+        <summary class="cursor-pointer font-medium">{{ interview.get_kind_display }}{% if interview.scheduled_at %} &middot; {{ interview.scheduled_at|date:"j M Y, H:i" }}{% endif %}{% if interview.outcome %} &middot; {{ interview.outcome }}{% endif %}</summary>
+        {% for pk, iform in interview_forms.items %}{% if pk == interview.pk %}
+          <form method="post" action="{% url 'tracker:interview_edit' interview.pk %}" class="mt-3 space-y-3" novalidate>
+            {% csrf_token %}
+            {% include "partials/_form_fields.html" with form=iform %}
+            <button type="submit" class="btn btn-primary !min-h-9">Save interview</button>
+          </form>
+        {% endif %}{% endfor %}
+        <form method="post" action="{% url 'tracker:interview_delete' interview.pk %}" class="mt-2">{% csrf_token %}<button type="submit" class="btn btn-secondary !min-h-9 text-red-700">Remove</button></form>
+      </details>
+    {% empty %}<p class="mt-2 text-sm text-slate-600">No interviews yet.</p>{% endfor %}
+    <details class="mt-4 text-sm"{% if interview_form.errors %} open{% endif %}>
+      <summary class="cursor-pointer font-medium text-brand-700">Add an interview</summary>
+      <form method="post" action="{% url 'tracker:interview_add' application.pk %}" class="mt-3 space-y-3" novalidate>
+        {% csrf_token %}
+        {% include "partials/_form_fields.html" with form=interview_form %}
+        <p class="text-xs text-slate-500">Times are in your time zone ({{ user_tz }}).</p>
+        <button type="submit" class="btn btn-primary">Add interview</button>
+      </form>
+    </details>
+  </section>
+
+  <section class="card mt-5" aria-labelledby="timeline-heading">
+    <h2 id="timeline-heading" class="text-lg font-semibold">Timeline</h2>
+    <ol class="mt-3 space-y-2 border-l border-slate-200 pl-4 text-sm">
+      {% for event in events %}
+        <li><span class="font-medium">{% if event.from_stage %}{{ event.from_stage|capfirst }} &rarr; {% endif %}{{ event.to_stage|capfirst }}</span> <span class="text-slate-500">&middot; {{ event.at|date:"j M Y, H:i" }}</span>{% if event.note %}<br><span class="text-slate-600">{{ event.note }}</span>{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </section>
+{% endtimezone %}{% endblock %}

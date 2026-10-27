@@ -18,6 +18,7 @@ from apps.matching import services as matching_services
 from apps.matching.forms import DismissForm
 from apps.matching.models import Match
 from apps.profiles.models import Profile
+from apps.tracker import services as tracker_services
 
 from . import manual
 from .eligibility import is_eligible
@@ -142,6 +143,7 @@ def detail(request: HttpRequest, pk: int) -> HttpResponse:
         "stale": match is not None and match.is_stale(version),
         "scoring_pending": scoring_pending and match is not None and match.score is None,
         "scores_exhausted": match is not None and matching_services.scores_exhausted(user),
+        "application": tracker_services.application_for_job(user, job),
         "report_form": ReportForm(),
         "dismiss_form": DismissForm(),
         "alternate_urls": [u for u in job.alternate_urls if isinstance(u, str)][:5],

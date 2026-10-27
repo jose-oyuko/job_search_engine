@@ -426,6 +426,8 @@ def _send(notification: Notification, now: datetime.datetime) -> str:
         return _send_digest(notification)
     if kind == Notification.Kind.KIT_READY:
         return _send_kit_ready(notification)
+    if kind == Notification.Kind.FOLLOWUP:
+        return _send_followup(notification)
     return _send_text(notification)
 
 
@@ -655,6 +657,54 @@ def on_kit_ready(kit: Kit) -> None:
     for notification_id in ids:
         Notification.objects.filter(pk=notification_id).update(deliver_after=timezone.now())
         deliver(notification_id)
+
+
+# --- follow-up reminders (spec §13.5) ----------------------------------------
+
+
+def _send_followup(notification: Notification) -> str:
+    """A follow-up reminder or a "consider marking it ghosted" suggestion, built from the
+    application's ID. Skipped if the application has moved on since it was queued."""
+    from apps.tracker.models import Application, Stage
+
+    application = (
+        Application.objects.for_user(notification.user)
+        .select_related("job")
+        .filter(pk=notification.payload.get("application_id"))
+        .first()
+    )
+    if application is None or application.stage != Stage.APPLIED:
+        return SKIPPED
+    ghost = notification.payload.get("what") == "ghost"
+    url = render.site_url(f"/app/tracker/{application.pk}/")
+    job = application.job
+    if ghost:
+        text = (
+            f"👻 No reply from {job.company} for 3 weeks about {job.title}. "
+            f"Consider marking it as ghosted: {url}"
+        )
+        subject = f"No reply yet from {job.company}"
+    else:
+        days = (timezone.now() - (application.applied_at or application.created_at)).days
+        text = (
+            f"⏰ Time to follow up on {job.title} at {job.company}. "
+            f"You applied {days} day{'s' if days != 1 else ''} ago. {url}"
+        )
+        subject = f"Follow up on {job.title} at {job.company}"
+    if notification.channel == TG:
+        target = _chat_and_gateway(notification)
+        if target is None:
+            return SKIPPED
+        target[1].send_message(target[0], text)
+    else:
+        context = {
+            "message": text.split(url)[0].strip(),
+            "url": url,
+            "site_name": settings.SITE_NAME,
+        }
+        body, html = render.render_email("followup", context)
+        _send_email(notification.user, subject, body, html)
+    return SENT
 
 
 # --- text-only and staff notices ----------------------------------------------------------------

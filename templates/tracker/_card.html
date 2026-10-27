@@ -1,0 +1,18 @@
+{# One application card. `app` is an Application; `stage_choices` is Stage.choices. #}
+<li class="rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm" data-id="{{ app.pk }}" data-stage-url="{% url 'tracker:stage' app.pk %}">
+  <a href="{% url 'tracker:detail' app.pk %}" class="font-medium text-slate-900 hover:underline">{{ app.job.title }}</a>
+  <p class="text-slate-600">{{ app.job.company }}</p>
+  <p class="mt-1 text-xs text-slate-500">
+    {% if app.applied_at %}Applied {{ app.applied_at|date:"j M" }}{% else %}Updated {{ app.last_stage_change_at|date:"j M" }}{% endif %}
+    {% if app.kit_id %}&middot; Kit v{{ app.kit.version }}{% endif %}
+  </p>
+  {% if app.stage == 'applied' and app.next_followup_at %}<p class="text-xs text-slate-500">Follow up {{ app.next_followup_at|date:"j M" }}</p>{% endif %}
+  <form method="post" action="{% url 'tracker:stage' app.pk %}" hx-post="{% url 'tracker:stage' app.pk %}" hx-target="#board" hx-swap="outerHTML" hx-trigger="change" class="mt-2 md:hidden">
+    {% csrf_token %}
+    <label class="sr-only" for="stage-{{ app.pk }}">Stage for {{ app.job.title }}</label>
+    <select id="stage-{{ app.pk }}" name="stage" class="input !min-h-9 !py-1 text-sm">
+      {% for value, label in stage_choices %}<option value="{{ value }}" {% if value == app.stage %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <noscript><input type="hidden" name="next" value="board"><button type="submit" class="btn btn-secondary mt-1 !min-h-9">Move</button></noscript>
+  </form>
+</li>

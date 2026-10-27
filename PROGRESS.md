@@ -4,7 +4,7 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 
 ## Current phase
 
-**Phase 8 — Notifications: Telegram and email** (complete 2026-10-26, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 9, once the owner says to proceed.
+**Phase 9 — Application tracker** (complete 2026-10-26, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 10, once the owner says to proceed.
 
 ## Phase status
 
@@ -18,8 +18,8 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 | 5 | Manual job input | ✅ Complete | 2026-10-22 |
 | 6 | Matching, scoring and the job feed | ✅ Complete | 2026-10-23 |
 | 7 | Application kit generation and documents | ✅ Complete | 2026-10-23 |
-| 8 | Notifications: Telegram and email | 🟨 Done, awaiting owner approval | 2026-10-26 |
-| 9 | Application tracker | ⬜ Not started | |
+| 8 | Notifications: Telegram and email | ✅ Complete | 2026-10-26 |
+| 9 | Application tracker | 🟨 Done, awaiting owner approval | 2026-10-26 |
 | 10 | Email job-alert ingestion | ⬜ Not started | |
 | 11 | Privacy, security hardening, polish | ⬜ Not started | |
 | 12 | Production deployment | ⬜ Not started | |
@@ -232,3 +232,23 @@ Legend: ⬜ Not started · 🟨 In progress · ✅ Complete (approved by owner)
 - Open questions: owner to create a bot with @BotFather, set `TELEGRAM_BOT_TOKEN` and
   `TELEGRAM_BOT_USERNAME`, and try the flow end to end (the one acceptance item that needs the real
   Telegram service).
+
+### Phase 9 — Application tracker — 2026-10-26
+- Summary: `apps.tracker` (models, services, stats, board, detail, manual form, reminders task),
+  wired into the feed, the job page and Telegram. Changes are uncommitted in the working tree on
+  `main` (owner commits).
+- Notes for next session:
+  - `tracker.services.apply_to_job` is the only place an Application is created; call it from any new
+    entry point (Phase 10 email-ingested jobs do not need it). `change_stage` is the only place a
+    stage changes (it writes the event).
+  - Follow-ups are `Notification(kind="followup_reminder")` with `payload={"application_id", "what"}`
+    and dedupe keys `followup:<id>:<date>:<channel>` / `ghost:<id>:<channel>`; the text is built in
+    `notifications.services._send_followup`.
+  - Stats definitions are in `apps/tracker/stats.py` (docstring). Interview times are typed in the
+    user's zone and stored in UTC (`InterviewForm`).
+  - Drag and drop is `static/js/tracker.js` + vendored `Sortable.min.js`; it cannot be tested without a
+    browser, so the server side (stage endpoint returns the board) is what the tests cover.
+  - Tests: `tests/test_tracker_services.py` (`seed()` builds applications with history),
+    `tests/test_tracker_views.py` (includes isolation).
+- Open questions: owner to try the board in a browser (drag, dropdown on a narrow window) and the
+  reminders; those are the parts tests cannot see.
