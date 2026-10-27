@@ -289,3 +289,23 @@ def test_the_bot_does_nothing_when_telegram_is_not_configured(settings) -> None:
     bot_services.handle_text(CHAT, "x", "/help")  # no gateway: no error, nothing sent
     bot_services.handle_callback(CHAT, "cb", "k.1.abc")
     assert datetime.date.today()
+
+
+def test_a_timed_out_toast_does_not_undo_or_crash_the_action(tg, alert) -> None:  # type: ignore[no-untyped-def]
+    """The popup after a button press is cosmetic: the job is already marked applied."""
+    from apps.notifications.exceptions import GatewayError
+    from apps.notifications.gateway import FakeGateway
+
+    _, match, buttons = alert
+
+    def failing_answer(self: FakeGateway, callback_id: str, text: str = "") -> None:
+        raise GatewayError("TimedOut")
+
+    original = FakeGateway.answer_callback
+    FakeGateway.answer_callback = failing_answer  # type: ignore[method-assign]
+    try:
+        bot_services.handle_callback(CHAT, "cb-x", buttons["Applied ✓"])  # must not raise
+    finally:
+        FakeGateway.answer_callback = original  # type: ignore[method-assign]
+    match.refresh_from_db()
+    assert match.status == Match.Status.APPLIED

@@ -17,7 +17,7 @@ from apps.matching.tasks import search_now_task
 from apps.tracker import services as tracker_services
 
 from . import schedule, services, signing
-from .exceptions import ChatAlreadyLinked, LinkTokenInvalid
+from .exceptions import ChatAlreadyLinked, GatewayError, LinkTokenInvalid
 from .gateway import TelegramGateway, get_gateway
 
 logger = logging.getLogger(__name__)
@@ -180,6 +180,18 @@ def _resume(gateway: TelegramGateway, chat_id: str, user: User) -> None:
     gateway.send_message(chat_id, f"Alerts are back on ({row.get_notify_mode_display().lower()}).")
 
 
+def _answer(gateway: TelegramGateway, callback_id: str, text: str) -> None:
+    """The popup after a button press is cosmetic: the action has already happened, so a Telegram
+    timeout here is logged and swallowed rather than reported as a failure."""
+    try:
+        gateway.answer_callback(callback_id, text)
+    except GatewayError as exc:
+        log_event(
+            logger, logging.WARNING, "bot_answer_failed", "Could not answer a button press",
+            reason=exc.reason,
+        )  # fmt: skip
+
+
 def handle_callback(chat_id: str, callback_id: str, data: str) -> None:
     """A button press. The chat must belong to the user the button was made for."""
     gateway = get_gateway()
@@ -192,7 +204,7 @@ def handle_callback(chat_id: str, callback_id: str, data: str) -> None:
             logger, logging.WARNING, "bot_callback_rejected", "Bot callback rejected",
             chat=signing.chat_hash(chat_id),
         )  # fmt: skip
-        gateway.answer_callback(callback_id, "This button is no longer valid.")
+        _answer(gateway, callback_id, "This button is no longer valid.")
         return
     action, match_id = parsed
     match = (
@@ -202,17 +214,17 @@ def handle_callback(chat_id: str, callback_id: str, data: str) -> None:
         .first()
     )
     if match is None:
-        gateway.answer_callback(callback_id, "This job is no longer available.")
+        _answer(gateway, callback_id, "This job is no longer available.")
         return
 
     if action == "applied":
         tracker_services.apply_to_job(user, match.job, match=match)
-        gateway.answer_callback(callback_id, "Marked as applied ✓")
+        _answer(gateway, callback_id, "Marked as applied ✓")
     elif action == "dismiss":
         matching_services.set_status(
             user, match, Match.Status.DISMISSED, reason=Match.DismissReason.NOT_RELEVANT
         )
-        gateway.answer_callback(callback_id, "Dismissed. It will not show on your dashboard.")
+        _answer(gateway, callback_id, "Dismissed. It will not show on your dashboard.")
     else:
         outcome = services.kit_for_button(user, match)
         answers = {
@@ -221,7 +233,7 @@ def handle_callback(chat_id: str, callback_id: str, data: str) -> None:
             "limit": "You have used this month's application kits.",
             "empty": "Add your experience or skills to your profile first.",
         }
-        gateway.answer_callback(callback_id, answers[outcome])
+        _answer(gateway, callback_id, answers[outcome])
     log_event(
         logger, logging.INFO, "bot_callback", "Bot callback handled",
         for_user_id=user.pk, action=action, match_id=match.pk,

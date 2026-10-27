@@ -66,6 +66,10 @@ class FakeGateway:
         self.fail_with = None
 
 
+CONNECT_TIMEOUT = 15.0  # seconds
+READ_TIMEOUT = 30.0
+
+
 class PtbGateway:
     """python-telegram-bot over the Bot API. Each call runs its own short event loop, so it is
     safe from Huey threads and from the bot's worker threads."""
@@ -73,21 +77,36 @@ class PtbGateway:
     def __init__(self, token: str) -> None:
         self._token = token
 
-    def _run(self, make_call: Any) -> None:
-        from telegram.error import Forbidden, TelegramError
+    def _run(self, make_call: Any, *, attempts: int = 1) -> None:
+        """One Bot API call. Generous timeouts (the default 5 seconds is too short on a slow link)
+        and no `getMe` round trip first. `attempts` above 1 retries a timeout or network error,
+        which is only safe for calls that can be repeated (answering a button press)."""
+        from telegram.error import Forbidden, NetworkError, TelegramError, TimedOut
 
         async def go() -> None:
             from telegram import Bot
+            from telegram.request import HTTPXRequest
 
-            async with Bot(self._token) as bot:
-                await make_call(bot)
+            request = HTTPXRequest(
+                connect_timeout=CONNECT_TIMEOUT, read_timeout=READ_TIMEOUT,
+                write_timeout=READ_TIMEOUT, pool_timeout=CONNECT_TIMEOUT,
+            )  # fmt: skip
+            try:
+                await make_call(Bot(self._token, request=request))
+            finally:
+                await request.shutdown()
 
-        try:
-            asyncio.run(go())
-        except Forbidden as exc:
-            raise GatewayError("forbidden", blocked=True) from exc
-        except TelegramError as exc:
-            raise GatewayError(type(exc).__name__) from exc
+        for attempt in range(1, attempts + 1):
+            try:
+                asyncio.run(go())
+                return
+            except Forbidden as exc:
+                raise GatewayError("forbidden", blocked=True) from exc
+            except (TimedOut, NetworkError) as exc:
+                if attempt == attempts:
+                    raise GatewayError(type(exc).__name__) from exc
+            except TelegramError as exc:
+                raise GatewayError(type(exc).__name__) from exc
 
     def send_message(self, chat_id: str, text: str, *, buttons: Buttons | None = None) -> None:
         markup = _markup(buttons)
@@ -105,7 +124,7 @@ class PtbGateway:
         )
 
     def answer_callback(self, callback_id: str, text: str = "") -> None:
-        self._run(lambda bot: bot.answer_callback_query(callback_id, text=text or None))
+        self._run(lambda bot: bot.answer_callback_query(callback_id, text=text or None), attempts=2)
 
 
 def _markup(buttons: Buttons | None) -> Any:

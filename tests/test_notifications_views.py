@@ -459,3 +459,46 @@ def test_the_admin_shows_no_chat_ids_or_message_data(tg, admin_client) -> None: 
     )
     assert CHAT not in page and CHAT not in link.content.decode()
     assert "payload" not in page and "chat_id" not in link.content.decode()
+
+
+def test_the_gateway_does_not_call_getme_first_and_uses_long_timeouts(router) -> None:  # type: ignore[no-untyped-def]
+    sent = router.post(f"{API}/sendMessage").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "ok": True,
+                "result": {"message_id": 1, "date": 1, "chat": {"id": 1, "type": "private"}},
+            },
+        )
+    )
+    PtbGateway(TOKEN).send_message("555", "hi")
+    assert sent.call_count == 1 and len(router.calls) == 1  # one request, no getMe
+    from apps.notifications import gateway
+
+    assert gateway.CONNECT_TIMEOUT >= 10 and gateway.READ_TIMEOUT >= 20
+
+
+def test_a_timeout_is_a_gateway_error_not_a_crash(router) -> None:  # type: ignore[no-untyped-def]
+    router.post(f"{API}/sendMessage").mock(side_effect=httpx.ReadTimeout("slow"))
+    with pytest.raises(GatewayError) as excinfo:
+        PtbGateway(TOKEN).send_message("555", "hi")
+    assert excinfo.value.reason == "TimedOut" and excinfo.value.blocked is False
+    assert len(router.calls) == 1  # a message is never re-sent here: it may have gone through
+
+
+def test_answering_a_button_is_retried_once_after_a_timeout(router) -> None:  # type: ignore[no-untyped-def]
+    route = router.post(f"{API}/answerCallbackQuery").mock(
+        side_effect=[
+            httpx.ReadTimeout("slow"),
+            httpx.Response(200, json={"ok": True, "result": True}),
+        ]
+    )
+    PtbGateway(TOKEN).answer_callback("cb-1", "Done")
+    assert route.call_count == 2
+
+
+def test_answering_gives_up_after_two_timeouts(router) -> None:  # type: ignore[no-untyped-def]
+    route = router.post(f"{API}/answerCallbackQuery").mock(side_effect=httpx.ConnectTimeout("down"))
+    with pytest.raises(GatewayError):
+        PtbGateway(TOKEN).answer_callback("cb-1", "Done")
+    assert route.call_count == 2
