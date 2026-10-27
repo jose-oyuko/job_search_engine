@@ -4,7 +4,7 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 
 ## Current phase
 
-**Phase 9 — Application tracker** (complete 2026-10-26, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 10, once the owner says to proceed.
+**Phase 10 — Email job-alert ingestion** (complete 2026-10-27, awaiting owner review; changes are uncommitted in the working tree). Next: Phase 11, once the owner says to proceed.
 
 ## Phase status
 
@@ -19,8 +19,8 @@ Claude Code updates this file at the end of every phase (see `CLAUDE.md` §2.4).
 | 6 | Matching, scoring and the job feed | ✅ Complete | 2026-10-23 |
 | 7 | Application kit generation and documents | ✅ Complete | 2026-10-23 |
 | 8 | Notifications: Telegram and email | ✅ Complete | 2026-10-26 |
-| 9 | Application tracker | 🟨 Done, awaiting owner approval | 2026-10-26 |
-| 10 | Email job-alert ingestion | ⬜ Not started | |
+| 9 | Application tracker | ✅ Complete | 2026-10-26 |
+| 10 | Email job-alert ingestion | 🟨 Done, awaiting owner approval | 2026-10-27 |
 | 11 | Privacy, security hardening, polish | ⬜ Not started | |
 | 12 | Production deployment | ⬜ Not started | |
 
@@ -252,3 +252,22 @@ Legend: ⬜ Not started · 🟨 In progress · ✅ Complete (approved by owner)
     `tests/test_tracker_views.py` (includes isolation).
 - Open questions: owner to try the board in a browser (drag, dropdown on a narrow window) and the
   reminders; those are the parts tests cannot see.
+
+### Phase 10 — Email job-alert ingestion — 2026-10-27
+- Summary: `apps.inbound` (addresses, mailbox interface with IMAP and fake, routing, parsers,
+  confirmation banner, settings page, onboarding step 6, retention task), `docs/EMAIL_SETUP.md`.
+  Changes are uncommitted in the working tree on `main` (owner commits).
+- Notes for next session:
+  - The owner has not run this against a real inbox. Real LinkedIn emails may need tuning of
+    `apps/inbound/parsers/linkedin.py` (fixtures in `tests/fixtures/emails/` mimic two layouts). Ask
+    for real `.eml` samples; add dedicated parsers (BrighterMonday, Fuzu, MyJobMag) the same way,
+    register them in `parsers/__init__.py::choose_parser`.
+  - `Match.user_added` is how "the user put this job in front of the rules" is remembered; any new
+    entry point that forces a match goes through `matching.services.match_job_for_user`.
+  - Phase 11 retention: `inbound.clear_old_bodies` already clears email text after 30 days; the
+    spec's `core.retention_cleanup` can call `inbound.services.clear_old_bodies`. Phase 11's export
+    and delete must include `InboundAddress`, `InboundEmail` and `ForwardingConfirmation`.
+  - Tests: `tests/inbound_helpers.py` (`load_eml`, `mailbox_with`), the shared fake mailbox is
+    `apps.inbound.mailbox.fake_mailbox()` (`INBOUND_MAILBOX=fake` in test settings).
+  - The onboarding wizard is now 6 steps (`cv, review, target, location, notifications, alerts`).
+- Open questions: owner to do the real forwarding test in `docs/EMAIL_SETUP.md` section 5.

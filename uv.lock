@@ -600,6 +600,15 @@ wheels = [
 ]
 
 [[package]]
+name = "imap-tools"
+version = "1.16.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/ff/013a8cc97cc3d7a74a5cc0d05c5eb637d47a5114efe10312ba7b72b11609/imap_tools-1.16.0.tar.gz", hash = "sha256:70cc760915965f9efd3ce2b43cbdafeca40849aedbea3623019536dc1def95b6", size = 49867, upload-time = "2026-10-14T10:17:57.817Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/92/d8/b9797cfdbfb885c0ebce581234e5e09ec1805f5d8b42247f8d9cde23ca92/imap_tools-1.16.0-py3-none-any.whl", hash = "sha256:8ae0860d626d44ad21c3b917309d135eb4d112159d4ce78b90a03b9bb9ba0de9", size = 36716, upload-time = "2026-10-14T10:17:54.494Z" },
+]
+
+[[package]]
 name = "iniconfig"
 version = "2.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -635,6 +644,7 @@ dependencies = [
     { name = "gunicorn" },
     { name = "httpx" },
     { name = "huey" },
+    { name = "imap-tools" },
     { name = "nh3" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic" },
@@ -676,6 +686,7 @@ requires-dist = [
     { name = "gunicorn", specifier = ">=22.0" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "huey", specifier = ">=2.5" },
+    { name = "imap-tools", specifier = ">=1.16.0" },
     { name = "nh3", specifier = ">=0.2.18" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
     { name = "pydantic", specifier = ">=2.8" },

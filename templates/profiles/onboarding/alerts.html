@@ -1,0 +1,7 @@
+{% extends "onboarding_base.html" %}
+{% block step_content %}
+  <p class="text-sm text-slate-600">Optional. Forward the job-alert emails you already get (LinkedIn and others) and the jobs in them appear in your feed. You can also do this later in Settings.</p>
+  {% include "inbound/_banner.html" with next="settings" %}
+  <div class="mt-4">{% include "inbound/_how_to.html" %}</div>
+  <p class="mt-4"><a href="{{ next_url }}" class="btn btn-primary">Continue</a></p>
+{% endblock %}

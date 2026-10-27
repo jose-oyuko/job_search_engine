@@ -988,3 +988,34 @@ def test_old_unused_helpers_exist() -> None:
     assert services.verdict_for(80) == "strong" and services.verdict_for(79) == "good"
     assert services.verdict_for(59) == "weak" and services.verdict_for(39) == "poor"
     assert time_machine and JobFactory and ExperienceFactory
+
+
+# --- jobs the user put in front of the rules -----------------------------------------------------------------
+
+
+def test_a_job_the_user_added_survives_the_rule_filter_running_again() -> None:
+    """Regression: the filter used to delete a user-added match that did not fit their target."""
+    from apps.matching import services
+    from apps.matching.models import Match
+    from tests.matching_helpers import make_job, make_user
+
+    user = make_user(target_titles=["support"], include_keywords=["support"])
+    job = make_job(title="Underwater Welder", external_id="uw")
+    match = services.match_job_for_user(user, job)
+    assert match is not None and match.rule_pass is False and match.user_added is True
+    assert services.match_new_job(job.pk) == []  # the batch run for everyone
+    services.rematch_user(user.pk)
+    kept = Match.objects.get(pk=match.pk)
+    assert kept.user_added and kept.rule_pass is False
+
+
+def test_a_job_the_rules_dropped_stays_dropped_unless_the_user_added_it() -> None:
+    from apps.matching import services
+    from apps.matching.models import Match
+    from tests.matching_helpers import make_job, make_user
+
+    user = make_user(target_titles=["support"], include_keywords=["support"])
+    job = make_job(title="Underwater Welder", external_id="uw2")
+    assert services.match_new_job(job.pk) == [] and not Match.objects.exists()
+    services.match_job_for_user(user, job)  # now the user adds it themselves
+    assert Match.objects.get().user_added is True

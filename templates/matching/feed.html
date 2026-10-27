@@ -12,6 +12,7 @@
       <button type="submit" class="btn btn-primary">Search now</button>
     </form>
   </div>
+  {% include "inbound/_banner.html" with confirmation=forwarding_confirmation next="feed" %}
 
   <div class="mt-3">{% include "matching/_search_status.html" with error="" %}</div>
 

@@ -281,9 +281,12 @@ def ingest_manual_job(
     origin: str,
     visibility: str,
     owner: Any = None,
+    external_id: str = "",
     now: datetime.datetime | None = None,
 ) -> tuple[Job, bool]:
-    """Create a job that has no source (manual URL or pasted text). Returns `(job, created)`.
+    """Create a job that has no source (manual URL, pasted text, email alert). Returns
+    `(job, created)`. A public job with the same `external_id` and origin (an email alert for a
+    posting we already have) is reused.
 
     A *public* job that is already in the pool (same URL, or the same company and title seen in the
     last 30 days) is reused instead of duplicated. Private jobs are never matched against other
@@ -292,13 +295,21 @@ def ingest_manual_job(
     now = now or timezone.now()
     fields = _derived_fields(raw)
     if visibility == Job.Visibility.PUBLIC:
+        if external_id:
+            same = Job.objects.filter(
+                source__isnull=True, origin=origin, external_id=external_id,
+                visibility=Job.Visibility.PUBLIC,
+            ).first()  # fmt: skip
+            if same is not None:
+                Job.objects.filter(pk=same.pk).update(last_seen_at=now, status=Job.Status.ACTIVE)
+                return same, False
         existing = _find_public_job(fields["url"], fields["dedupe_key"], now)
         if existing is not None:
             Job.objects.filter(pk=existing.pk).update(last_seen_at=now, status=Job.Status.ACTIVE)
             return existing, False
     job = Job.objects.create(
         source=None,
-        external_id="",
+        external_id=external_id,
         origin=origin,
         visibility=visibility,
         owner=owner,

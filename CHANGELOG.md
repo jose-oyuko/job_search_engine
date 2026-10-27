@@ -158,6 +158,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
     target, with or without a kit) and median days to a first response.
   - Telegram `/status` shows applications by stage; a "Tracker" link in the app navigation.
   - ADR 0017. Vendored SortableJS 1.15.2.
+- Phase 10 — Email job-alert ingestion:
+  - `apps.inbound`: `InboundAddress` (every user gets a private `u-xxxxxx@<domain>` address, by
+    signup and a data migration), `InboundEmail`, `ForwardingConfirmation`; a `MailboxClient`
+    interface with an IMAP implementation (`imap-tools`) and a fake for tests.
+  - `inbound.poll_mailbox` every 5 minutes: route by address headers, de-duplicate by `Message-ID`,
+    file each message under `jobpilot/processed` or `jobpilot/unrouted`, and `manage.py poll_mailbox`
+    to run it by hand.
+  - Parsers: `LinkedInAlertParser` (title, company, location and link from the email body only;
+    HTML and text layouts; LinkedIn is never fetched) and `GenericAlertParser` (links to a
+    configured source are read through it, otherwise the model lists the jobs, system-paid, with
+    only links from the email accepted).
+  - The receiving user is matched first; public email jobs then flow to everyone's rule filter.
+  - Gmail forwarding confirmation: a banner with the link on the dashboard and settings page (only
+    Google's own link is accepted) and a Telegram notice.
+  - Settings → Job alerts (address, copy button, Gmail and Outlook steps, recent emails) and
+    onboarding step 6; email text cleared after 30 days.
+  - `docs/EMAIL_SETUP.md` (Cloudflare Email Routing, Gmail app password, folders); ADR 0018.
+  - New dependency: `imap-tools`.
+
+### Fixed
+- A job a user added themselves (by hand or by email) that fell outside their job target was deleted
+  by the next rule-filter run. Matches now remember `user_added` and are kept.
 
 ### Fixed
 - `log_event` no longer raises when a field is named like a `LogRecord` attribute (`created`,

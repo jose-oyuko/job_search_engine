@@ -161,12 +161,21 @@ def _notifications_step(request: HttpRequest) -> HttpResponse:
     return _render(request, step, "profiles/onboarding/notifications.html", context)
 
 
+def _alerts_step(request: HttpRequest) -> HttpResponse:
+    from apps.inbound.views import alerts_context
+
+    step = STEP_BY_SLUG["alerts"]
+    context = alerts_context(_user(request))
+    return _render(request, step, "profiles/onboarding/alerts.html", context)
+
+
 STEPS: list[Step] = [
     Step("cv", "Upload your CV", _cv_step),
     Step("review", "Review your profile", _review_step),
     Step("target", "Choose your target", _target_step),
     Step("location", "Location and timezone", _location_step),
     Step("notifications", "Notifications", _notifications_step),
+    Step("alerts", "Forward your job alerts", _alerts_step),
 ]
 STEP_BY_SLUG: dict[str, Step] = {s.slug: s for s in STEPS}
 

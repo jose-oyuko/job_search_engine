@@ -1,0 +1,29 @@
+{% load static %}{# Instructions shared by the settings page and onboarding. Expects `inbound_address`. #}
+<div class="rounded-lg border border-slate-200 bg-white p-4 text-sm">
+  <p class="font-medium">Your forwarding address</p>
+  <p class="mt-2 flex flex-wrap items-center gap-2"><code id="inbound-address" class="break-all rounded bg-slate-100 px-2 py-1 text-base">{{ inbound_address }}</code>
+    <button type="button" data-copy="#inbound-address" class="btn btn-secondary !min-h-9">Copy address</button></p>
+  <p class="mt-2 text-slate-600">Anything sent to this address is read for job postings and added to your feed. We never see your inbox, only the emails you forward.</p>
+</div>
+<script src="{% static 'js/kit.js' %}" defer></script>
+
+<div class="mt-4 space-y-3 text-sm">
+  <details class="rounded-lg border border-slate-200 bg-white p-4" open>
+    <summary class="cursor-pointer font-medium">Gmail: forward your job alerts</summary>
+    <ol class="mt-3 list-decimal space-y-2 pl-5 text-slate-700">
+      <li>In Gmail open <strong>Settings</strong> (the gear), then <strong>See all settings</strong>, then <strong>Forwarding and POP/IMAP</strong>.</li>
+      <li>Press <strong>Add a forwarding address</strong> and paste the address above. Gmail sends it a confirmation. A banner with a link appears here and on your dashboard within a few minutes. Click it to confirm.</li>
+      <li>Go to <strong>Filters and Blocked Addresses</strong>, then <strong>Create a new filter</strong>. In <em>From</em> put the sender of your alerts, for example <code>jobalerts-noreply@linkedin.com</code>.</li>
+      <li>Press <strong>Create filter</strong>, tick <strong>Forward it to</strong>, choose your forwarding address, and save.</li>
+    </ol>
+  </details>
+  <details class="rounded-lg border border-slate-200 bg-white p-4">
+    <summary class="cursor-pointer font-medium">Outlook: forward your job alerts</summary>
+    <ol class="mt-3 list-decimal space-y-2 pl-5 text-slate-700">
+      <li>Open <strong>Settings</strong>, then <strong>Mail</strong>, then <strong>Rules</strong>, and press <strong>Add new rule</strong>.</li>
+      <li>Condition: <strong>Sender address includes</strong> the alert sender, for example <code>linkedin.com</code>.</li>
+      <li>Action: <strong>Forward to</strong> and paste the address above. Save.</li>
+    </ol>
+  </details>
+  <p class="text-xs text-slate-500">LinkedIn alerts work best. Other job sites go through a general reader that is less precise. We only read the email you send us and never open LinkedIn for you.</p>
+</div>

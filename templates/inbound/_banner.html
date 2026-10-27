@@ -1,0 +1,11 @@
+{# Gmail forwarding confirmation. Expects `confirmation` (a ForwardingConfirmation) and `next`. #}
+{% if confirmation %}
+  <div class="mt-4 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-slate-800" role="status">
+    <p class="font-medium">Gmail is waiting for you to confirm forwarding</p>
+    <p class="mt-1 text-slate-700">Click the link to let Gmail forward your job alerts to JobPilot.{% if confirmation.confirmation_code %} Your confirmation code is <strong>{{ confirmation.confirmation_code }}</strong>.{% endif %}</p>
+    <div class="mt-2 flex flex-wrap items-center gap-2">
+      <a href="{{ confirmation.confirmation_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary !min-h-9">Confirm forwarding</a>
+      <form method="post" action="{% url 'inbound:dismiss_confirmation' confirmation.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}"><button type="submit" class="btn btn-secondary !min-h-9">Done, hide this</button></form>
+    </div>
+  </div>
+{% endif %}

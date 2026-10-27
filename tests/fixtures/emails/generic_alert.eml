@@ -1,0 +1,17 @@
+From: MyJobAlerts <alerts@jobsite.example.com>
+To: u-xxxxxx@alerts.example.test
+Subject: 2 new jobs matching your alert
+Message-ID: <generic-alert-0003@jobsite.example.com>
+Date: Wed, 04 Mar 2026 08:00:00 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+Hello, here are today's openings for you.
+
+1. Customer Care Representative at Zeta Telecom, Nairobi. Salary KES 60,000 a month.
+   Apply: https://jobsite.example.com/jobs/care-rep-123
+
+2. Support Team Lead at Eta Bank, Kisumu.
+   Apply: https://jobsite.example.com/jobs/team-lead-456
+
+Unsubscribe: https://jobsite.example.com/unsubscribe

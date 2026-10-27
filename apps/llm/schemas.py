@@ -186,3 +186,20 @@ class ScreeningAnswer(BaseModel):
 
 class ScreeningSet(BaseModel):
     answers: list[ScreeningAnswer]
+
+
+# --- job-alert emails (task `extract_email_jobs`, spec §9.2) ---------------------------------
+
+
+class EmailJob(BaseModel):
+    title: str
+    company: str = ""
+    location: str = ""
+    url: str = ""  # only a link that appears in the email; anything else is discarded
+    pay_text: str | None = None
+    summary: str = ""  # one line, only if the email says it
+
+
+class EmailJobs(BaseModel):
+    is_job_alert: bool  # false for newsletters, receipts, confirmations and the like
+    jobs: list[EmailJob] = []

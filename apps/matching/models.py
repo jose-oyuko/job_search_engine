@@ -35,6 +35,9 @@ class Match(UserOwnedModel, TimeStampedModel):
         Track, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
     )
 
+    # The user put this job in front of the rules themselves (added it by hand or forwarded it by
+    # email), so the rule filter never removes it, even if the job does not fit their targets.
+    user_added = models.BooleanField(default=False)
     rule_pass = models.BooleanField(default=True)
     rule_reasons = models.JSONField(default=list, blank=True)
 

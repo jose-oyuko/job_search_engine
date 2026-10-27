@@ -127,6 +127,14 @@ reminder a week after you applied (then weekly) through your alert channels, and
 it ghosted after three weeks of silence. `/app/tracker/stats/` shows your response rates. Reminders
 need the worker (`run_huey`).
 
+## Job alerts by email
+
+Settings → Job alerts gives you a private forwarding address. Forward your LinkedIn (and other)
+job-alert emails to it with a Gmail filter or an Outlook rule, and the jobs in them appear in your
+feed. The worker reads the platform inbox every 5 minutes (`run_huey`); `manage.py poll_mailbox`
+does one pass by hand. The owner's one-time setup (Cloudflare Email Routing, a dedicated Gmail,
+`INBOUND_*` in `.env`) is in `docs/EMAIL_SETUP.md`.
+
 ## Adding a job by hand
 
 `/app/jobs/add/` takes a link or a pasted description. Links are fetched through an SSRF-safe reader

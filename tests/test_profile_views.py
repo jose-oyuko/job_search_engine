@@ -551,10 +551,10 @@ def test_wizard_requires_login() -> None:
 def test_full_manual_wizard_path(new_client) -> None:  # type: ignore[no-untyped-def]
     client, user = new_client
     cv_page = client.get("/welcome/cv/").content.decode()
-    assert "Step 1 of 5" in cv_page and "I will fill it in myself" in cv_page
+    assert "Step 1 of 6" in cv_page and "I will fill it in myself" in cv_page
 
     review = client.get("/welcome/review/").content.decode()  # no CV: manual basics
-    assert "Step 2 of 5" in review and 'name="headline"' in review
+    assert "Step 2 of 6" in review and 'name="headline"' in review
     assert (
         client.post("/welcome/review/", {"headline": "Data labeller"})["Location"]
         == "/welcome/target/"
@@ -586,15 +586,19 @@ def test_full_manual_wizard_path(new_client) -> None:  # type: ignore[no-untyped
 
     alerts = client.get("/welcome/notifications/").content.decode()
     assert (
-        "Step 5 of 5" in alerts and 'name="notify_mode"' in alerts and "Connect Telegram" in alerts
+        "Step 5 of 6" in alerts and 'name="notify_mode"' in alerts and "Connect Telegram" in alerts
     )
     response = client.post(
         "/welcome/notifications/",
         {"notify_mode": "daily", "digest_time": "07:30", "notify_email": "on"},
     )
-    assert response["Location"] == "/welcome/done/"
+    assert response["Location"] == "/welcome/alerts/"
     settings_row.refresh_from_db()
     assert settings_row.notify_mode == "daily" and settings_row.digest_time.hour == 7
+
+    forwarding = client.get("/welcome/alerts/").content.decode()
+    assert "Step 6 of 6" in forwarding and "@alerts.example.test" in forwarding
+    assert 'href="/welcome/done/"' in forwarding
 
     done = client.get("/welcome/done/", follow=True)
     assert done.redirect_chain[-1][0] == "/app/" and "all set" in done.content.decode()
@@ -685,11 +689,11 @@ def test_new_steps_can_be_appended_and_the_wizard_adapts(
     monkeypatch.setattr(onboarding, "STEPS", steps)
     monkeypatch.setattr(onboarding, "STEP_BY_SLUG", {s.slug: s for s in steps})
 
-    assert onboarding.next_slug("notifications") == "alerts-extra"
+    assert onboarding.next_slug("alerts") == "alerts-extra"
     assert onboarding.next_slug("alerts-extra") == "done"
     client, _ = new_client
     assert client.get("/welcome/alerts-extra/").content == b"extra step"
-    assert "Step 4 of 6" in client.get("/welcome/location/").content.decode()
+    assert "Step 4 of 7" in client.get("/welcome/location/").content.decode()
 
 
 def test_signup_to_dashboard_happy_path_uses_the_wizard(django_capture_on_commit_callbacks) -> None:  # type: ignore[no-untyped-def]

@@ -732,6 +732,12 @@ def _send_text(notification: Notification) -> str:
             f"📝 New waitlist request from {entry.name or 'someone'}. Review it: "
             + render.site_url(f"/admin/accounts/waitlistentry/{entry.pk}/change/")
         )
+    elif payload.get("forwarding_confirmation_id"):
+        text = (
+            "📬 Gmail is asking you to confirm forwarding to JobPilot. "
+            "Open your job alert settings and press the confirmation link: "
+            + render.site_url("/app/settings/job-alerts/")
+        )
     elif payload.get("followup_text"):
         text = str(payload["followup_text"])
     else:

@@ -18,6 +18,8 @@ HUEY = {**HUEY, "immediate": True}
 
 LLM_PROVIDER = "fake"
 TELEGRAM_GATEWAY = "fake"
+INBOUND_MAILBOX = "fake"
+INBOUND_EMAIL_DOMAIN = "alerts.example.test"
 TELEGRAM_BOT_USERNAME = "jobpilot_test_bot"
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

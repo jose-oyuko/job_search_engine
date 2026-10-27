@@ -1,0 +1,19 @@
+From: Gmail Team <forwarding-noreply@google.com>
+To: u-xxxxxx@alerts.example.test
+Subject: (#123456789) Gmail Forwarding Confirmation - Receive Mail from someone@gmail.com
+Message-ID: <gmail-confirmation-0004@mail.google.example>
+Date: Wed, 04 Mar 2026 05:00:00 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+
+someone@gmail.com has requested to automatically forward mail to your email address.
+
+Confirmation code: 123456789
+
+To allow someone@gmail.com to automatically forward mail to your address, please click the link below to confirm the request:
+
+https://mail-settings.google.com/mail/vf-%5BANGjdJ8x%5D-abcdef
+
+If you click the link and it appears to be broken, please copy and paste it into a new browser window.
+
+Also see https://evil.example.net/mail/vf-fake for details.

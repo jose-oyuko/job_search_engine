@@ -159,11 +159,11 @@ def test_the_onboarding_step_saves_mode_time_and_email(tg) -> None:  # type: ign
     client = Client()
     client.force_login(user)
     page = client.get("/welcome/notifications/").content.decode()
-    assert "Step 5 of 5" in page and "Connect Telegram" in page
+    assert "Step 5 of 6" in page and "Connect Telegram" in page
     response = client.post(
         "/welcome/notifications/", {"notify_mode": "hourly", "digest_time": "09:00"}
     )
-    assert response["Location"] == "/welcome/done/"
+    assert response["Location"] == "/welcome/alerts/"
     row = UserSettings.objects.get(user=user)
     assert (row.notify_mode, row.notify_email) == ("hourly", False)  # an unticked box is off
 

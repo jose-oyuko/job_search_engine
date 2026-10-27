@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.core.logging import log_event
+from apps.inbound import services as inbound_services
 from apps.llm.models import UsageQuota
 
 from .exceptions import (
@@ -150,7 +151,7 @@ def complete_signup(user: User, invite_code: str | None) -> None:
         if not ConsentRecord.objects.for_user(user).exists():
             record_consents(user)
         # TODO(phase 3): create the empty Profile here.
-        # TODO(phase 10): create the user's InboundAddress here (the model arrives in Phase 10).
+        inbound_services.ensure_address(user)
         invite_claimed = bool(invite_code) and _mark_invite_used(invite_code or "", user)
     log_event(logger, logging.INFO, "user_signed_up", "User signed up", user_id=user.pk)
     if invite_claimed:

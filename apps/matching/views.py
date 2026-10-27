@@ -15,6 +15,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from apps.accounts.models import User, UserSettings
 from apps.core.tenancy import get_owned_or_404
+from apps.inbound import services as inbound_services
 from apps.jobs.eligibility import is_eligible
 from apps.jobs.scam import FLAG_LABELS
 from apps.profiles.models import Profile, Track
@@ -131,6 +132,7 @@ def render_feed(request: HttpRequest) -> HttpResponse:
         ),
         "progress": services.search_progress(user),
         "dismiss_form": DismissForm(),
+        "forwarding_confirmation": inbound_services.pending_confirmation(user),
     }
     return render(request, "matching/feed.html", context)
 

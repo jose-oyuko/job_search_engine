@@ -26,6 +26,7 @@ dependencies = [
     "weasyprint>=70.0",
     "docxtpl>=0.20.2",
     "python-telegram-bot>=21",
+    "imap-tools>=1.16.0",
 ]
 
 [dependency-groups]

@@ -23,6 +23,7 @@ urlpatterns = [
     path("", include("apps.kits.urls")),
     path("", include("apps.notifications.urls")),
     path("", include("apps.tracker.urls")),
+    path("", include("apps.inbound.urls")),
     path("", include("apps.pages.urls")),
 ]
 

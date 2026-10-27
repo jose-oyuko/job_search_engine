@@ -1,5 +1,6 @@
 <nav class="mt-4 flex gap-2 border-b border-slate-200 text-sm" aria-label="Settings sections">
   <a href="{% url 'accounts:settings_account' %}" class="-mb-px border-b-2 px-3 py-2 {% if active == 'account' %}border-brand-600 font-semibold text-brand-700{% else %}border-transparent text-slate-600 hover:text-slate-900{% endif %}" {% if active == 'account' %}aria-current="page"{% endif %}>Account</a>
   <a href="{% url 'notifications:settings' %}" class="-mb-px border-b-2 px-3 py-2 {% if active == 'notifications' %}border-brand-600 font-semibold text-brand-700{% else %}border-transparent text-slate-600 hover:text-slate-900{% endif %}" {% if active == 'notifications' %}aria-current="page"{% endif %}>Notifications</a>
+  <a href="{% url 'inbound:settings' %}" class="-mb-px border-b-2 px-3 py-2 {% if active == 'job-alerts' %}border-brand-600 font-semibold text-brand-700{% else %}border-transparent text-slate-600 hover:text-slate-900{% endif %}" {% if active == 'job-alerts' %}aria-current="page"{% endif %}>Job alerts</a>
   <a href="{% url 'llm:usage' %}" class="-mb-px border-b-2 px-3 py-2 {% if active == 'usage' %}border-brand-600 font-semibold text-brand-700{% else %}border-transparent text-slate-600 hover:text-slate-900{% endif %}" {% if active == 'usage' %}aria-current="page"{% endif %}>Usage</a>
 </nav>

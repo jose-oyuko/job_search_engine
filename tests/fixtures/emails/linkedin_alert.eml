@@ -1,0 +1,62 @@
+From: LinkedIn Job Alerts <jobalerts-noreply@linkedin.com>
+To: someone@gmail.com
+Delivered-To: u-xxxxxx@alerts.example.test
+X-Forwarded-To: u-xxxxxx@alerts.example.test
+Subject: 3 new jobs for Customer Support Agent in Kenya
+Message-ID: <linkedin-alert-0001@mail.linkedin.example>
+Date: Wed, 04 Mar 2026 06:30:00 +0000
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="BOUNDARY"
+
+--BOUNDARY
+Content-Type: text/plain; charset="utf-8"
+
+Your job alert for Customer Support Agent in Kenya
+
+Customer Support Agent
+Acme Ltd
+Nairobi, Kenya (Remote)
+
+View job: https://www.linkedin.com/comm/jobs/view/3912345678?trackingId=abc&refId=def
+
+IT Helpdesk Technician
+Beta Networks
+Mombasa, Kenya
+
+View job: https://www.linkedin.com/comm/jobs/view/3912345999?trackingId=ghi
+
+--BOUNDARY
+Content-Type: text/html; charset="utf-8"
+
+<html><body>
+<table role="presentation" width="100%">
+  <tr><td><h2>Your job alert for Customer Support Agent in Kenya</h2></td></tr>
+  <tr><td>
+    <table><tr><td>
+      <a href="https://www.linkedin.com/comm/jobs/view/3912345678?trackingId=abc&amp;refId=def">Customer Support Agent</a>
+      <p>Acme Ltd &middot; Nairobi, Kenya (Remote)</p>
+      <p>Actively recruiting</p>
+      <a href="https://www.linkedin.com/comm/jobs/view/3912345678?trackingId=abc&amp;view=apply">View job</a>
+    </td></tr></table>
+  </td></tr>
+  <tr><td>
+    <table><tr><td>
+      <a href="https://www.linkedin.com/comm/jobs/view/3912345999?trackingId=ghi">IT Helpdesk Technician</a>
+      <p>Beta Networks</p>
+      <p>Mombasa, Kenya</p>
+      <p>2 days ago</p>
+    </td></tr></table>
+  </td></tr>
+  <tr><td>
+    <table><tr><td>
+      <a href="https://www.linkedin.com/jobs/view/remote-data-annotator-at-gamma-co-3912346111/?trackingId=jkl">Remote Data Annotator</a>
+      <p>Gamma Co</p>
+      <p>Kenya</p>
+      <p>Be an early applicant</p>
+    </td></tr></table>
+  </td></tr>
+  <tr><td><a href="https://www.linkedin.com/comm/jobs/search/?keywords=support">See all jobs</a></td></tr>
+  <tr><td><p>You are receiving job alert emails. <a href="https://www.linkedin.com/comm/psettings/email">Unsubscribe</a></p></td></tr>
+</table>
+</body></html>
+--BOUNDARY--

@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "apps.kits",
     "apps.notifications",
     "apps.tracker",
+    "apps.inbound",
     "apps.pages",
 ]
 
@@ -268,4 +269,9 @@ SOCIALACCOUNT_PROVIDERS = (
     if GOOGLE_ENABLED
     else {}
 )
+INBOUND_EMAIL_DOMAIN = env.str("INBOUND_EMAIL_DOMAIN", default="alerts.example.com")
+INBOUND_IMAP_HOST = env.str("INBOUND_IMAP_HOST", default="imap.gmail.com")
 INBOUND_IMAP_USER = env.str("INBOUND_IMAP_USER", default="")
+INBOUND_IMAP_PASSWORD = env.str("INBOUND_IMAP_PASSWORD", default="")
+# imap: the real mailbox (needs the credentials). fake: an in-memory mailbox (tests).
+INBOUND_MAILBOX = env.str("INBOUND_MAILBOX", default="imap")

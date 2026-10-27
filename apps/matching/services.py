@@ -122,7 +122,7 @@ def upsert_match(
     if not result.passed and not force:
         if existing is None:
             return None, False
-        if existing.status in (Match.Status.SAVED, Match.Status.APPLIED):
+        if existing.user_added or existing.status in (Match.Status.SAVED, Match.Status.APPLIED):
             _update_rules(existing, track, result)
             return existing, False
         existing.delete()  # no longer relevant (for example the track changed)
@@ -134,8 +134,12 @@ def upsert_match(
             track=track,
             rule_pass=result.passed,
             rule_reasons=result.reasons,
+            user_added=force,
         )
         return match, True
+    if force and not existing.user_added:
+        existing.user_added = True
+        existing.save(update_fields=["user_added", "updated_at"])
     _update_rules(existing, track, result)
     return existing, False
 
