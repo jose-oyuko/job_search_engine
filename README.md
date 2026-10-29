@@ -24,10 +24,35 @@ bash scripts/setup_tailwind.sh           # downloads the Tailwind CLI into bin/
 ./bin/tailwind -i static/src/input.css -o static/css/app.css   # add --watch while styling
 uv run python manage.py runserver        # http://localhost:8000, health: /healthz
 uv run python manage.py run_huey         # background worker + scheduler (second terminal)
+uv run python manage.py run_bot          # Telegram bot (third terminal, optional: see "Notifications")
 pre-commit install                       # ruff, formatting, gitleaks and hygiene hooks
 ```
 
 On Windows the CLI is saved as `bin/tailwind.exe`.
+
+### Every new terminal
+
+Each terminal window needs `uv` on its path. On Windows (PowerShell) run this first in every new
+window (it lasts until the window is closed), from the project folder:
+
+```powershell
+$env:Path += ";$env:APPDATA\Python\Python39\Scripts"
+```
+
+Check it with `uv --version`. Then start whatever that window is for. To avoid retyping, add that
+folder to your user PATH once (Windows Settings, search "environment variables", edit **Path**) and
+reopen your terminals.
+
+### The programs to keep running
+
+| Terminal | Command | Needed for |
+|---|---|---|
+| 1 | `uv run python manage.py runserver` | The website, http://localhost:8000 |
+| 2 | `uv run python manage.py run_huey` | Everything in the background: fetching, scoring, kits, alerts, digests, reminders, reading the alert inbox |
+| 3 | `uv run python manage.py run_bot` | Telegram commands and button presses (only if you use Telegram; needs `TELEGRAM_BOT_TOKEN` and `TELEGRAM_BOT_USERNAME` in `.env`) |
+
+After changing code or `.env`, stop the program with Ctrl+C and start it again. Postgres and Mailpit
+come from `docker compose up -d db mailpit`.
 
 If port 5432 is already taken by a local Postgres, set `DB_PORT=5544` in `.env` and use the same
 port in `DATABASE_URL`.
