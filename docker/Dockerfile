@@ -22,7 +22,7 @@ COPY apps ./apps
 RUN tailwind -i static/src/input.css -o static/css/app.css --minify
 
 # ---- Stage 2: install Python dependencies into a venv ----
-FROM python:3.12-slim-bookworm AS deps
+FROM python:3.15-slim-bookworm AS deps
 COPY --from=ghcr.io/astral-sh/uv:0.8.0 /uv /usr/local/bin/uv
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app
@@ -30,7 +30,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --no-install-project
 
 # ---- Stage 3: runtime ----
-FROM python:3.12-slim-bookworm AS runtime
+FROM python:3.15-slim-bookworm AS runtime
 # WeasyPrint (Phase 7) needs Pango and friends; installing now keeps the image stable.
 RUN apt-get update && apt-get install -y --no-install-recommends \
       libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libfontconfig1 shared-mime-info \
